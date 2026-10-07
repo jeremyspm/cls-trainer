@@ -1,0 +1,11 @@
+{
+  "name": "CLS Practical Trainer",
+  "short_name": "CLS Trainer",
+  "description": "Rehearse the BN2 vital signs and medication administration practicals.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#161719",
+  "theme_color": "#161719",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
