@@ -134,6 +134,7 @@
     if (name === 'setup') return setupView(arg || 'vs');
     if (name === 'live') return liveView(arg || 'vs');
     if (name === 'rubric') return rubricView(arg || 'vs');
+    if (name === 'rnq') return rnqView(arg || 'vs', arg2);
     if (name === 'log') return logView();
     if (name === 'bp') return bpView();
     return homeView();
@@ -146,6 +147,7 @@
     for (const e of log()) if (e.type === 'live' && e.run === run && e.met) best = Math.max(best, LEVELS.findIndex(l => l[0] === e.level));
     return best;
   }
+  function rnqPassed(run) { return log().some(e => e.type === 'rnq' && e.run === run && e.total >= 8 && e.right / e.total >= 0.8); }
   function orderClean(run, scope) { return log().some(e => e.type === 'order' && e.run === run && e.scope === scope && e.misses === 0); }
   function weakSteps(run) {
     const d = drill(); return D.STEPS[run].filter(s => d[s.id] && d[s.id].miss > 0 && (d[s.id].streak || 0) < 2).map(s => s.id);
@@ -155,10 +157,12 @@
     if (!s['walk-vs']) return { href: '#walk/vs', t: 'Read the vital signs run once', why: 'Start here: the whole run in one read, about 5 minutes. Every step, word for word from the course demo.' };
     if (!orderClean('vs', 'bp')) return { href: '#order/vs/bp', t: 'What’s next? BP only', why: 'The two-step order is where you got stopped. Get one clean run of the BP sequence.' };
     if (!L.some(e => e.type === 'bp' && e.ok)) return { href: '#bp', t: 'BP Lab: one clean reading', why: 'Feel the pulse go, hear the taps, and watch the needle fall at 2–3 mmHg a second.' };
+    if (!rnqPassed('vs')) return { href: '#rnq/vs', t: 'The RN asks: vital signs', why: 'Ten questions your preceptor could ask: normal ranges, the two-step, charting. Get 8 or more right in one go.' };
     const vsLvl = bestLevelMet('vs');
     if (vsLvl < 0) return { href: '#setup/vs', t: 'Live run: vital signs (Coach)', why: 'Say it out loud with everything on screen. The app plays Mr Luke and your preceptor.', level: 'coach' };
     if (!s['walk-ma']) return { href: '#walk/ma', t: 'Read the med admin run once', why: 'Same patient, Mr Luke. Joan’s role play, step by step.' };
     if (!orderClean('ma', 'all')) return { href: '#order/ma/all', t: 'What’s next? Med admin', why: 'Lock in the order: chart → drug → expiry → bedside → Ask, Build, Check → sign.' };
+    if (!rnqPassed('ma')) return { href: '#rnq/ma', t: 'The RN asks: med admin', why: 'The rights, the two drugs, and Ask–Build–Check. Get 8 or more right in one go.' };
     const maLvl = bestLevelMet('ma');
     const weak = weakSteps('vs').concat(weakSteps('ma'));
     if (weak.length) return { href: '#order/' + (weakSteps('vs').length ? 'vs' : 'ma') + '/weak', t: 'Fix your weak steps', why: weak.length + ' step' + (weak.length > 1 ? 's' : '') + ' you’ve missed in “What’s next?” and haven’t got right twice since.' };
@@ -194,6 +198,7 @@
         <button class="row" data-go="#bp"><span class="ic">🎚️</span><span class="tx"><b>BP Lab</b><span>Gauge, pulse, the taps</span></span></button>
         <button class="row" data-go="#setup/vs"><span class="ic">🎙️</span><span class="tx"><b>Live run</b><span>Out loud, start to finish</span></span></button>
       </div>
+      <button class="row" data-go="#rnq/vs"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · vital signs</b><span>${rnqLine('vs')}</span></span><span class="go">›</span></button>
       <h3>💊 Medication administration <span class="small muted">· Mr Luke</span></h3>
       <div class="grid2">
         <button class="row" data-go="#walk/ma"><span class="ic">📖</span><span class="tx"><b>Walkthrough</b><span>Chart → bedside → sign</span></span></button>
@@ -201,13 +206,12 @@
         <button class="row" data-go="#setup/ma"><span class="ic">🎙️</span><span class="tx"><b>Live run</b><span>Paracetamol or metoprolol</span></span></button>
         <button class="row" data-go="#rubric/ma"><span class="ic">📋</span><span class="tx"><b>The marking sheet</b><span>Every line, word for word</span></span></button>
       </div>
+      <button class="row" data-go="#rnq/ma"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · med admin</b><span>${rnqLine('ma')}</span></span><span class="go">›</span></button>
       <div class="eyebrow">More</div>
       <button class="row" data-go="#order/vs/all"><span class="ic">🔢</span><span class="tx"><b>What’s next? · whole vital signs run</b><span>Chart to hand hygiene</span></span><span class="go">›</span></button>
       <button class="row" data-go="#rubric/vs"><span class="ic">📋</span><span class="tx"><b>Vital signs marking sheet</b><span>Every line, word for word</span></span><span class="go">›</span></button>
       <button class="row" data-go="#log"><span class="ic">📈</span><span class="tx"><b>Your log</b><span>${L.length ? L.length + ' entries' : 'Nothing yet'}</span></span><span class="go">›</span></button>
-      <div class="row soon"><span class="ic">📝</span><span class="tx"><b>Chart it</b><span>Plot on the NZ vital signs chart + sign the med chart. Coming in stage 3.</span></span><span class="go">soon</span></div>
-      <div class="row soon"><span class="ic">💬</span><span class="tx"><b>RN question drill</b><span>Normal ranges, the two drugs, Ask–Build–Check. Coming in stage 2.</span></span><span class="go">soon</span></div>
-      <p class="small faint" style="margin-top:18px">Built from your two marking sheets, Janine’s vital signs demo, Joan’s med admin role play, and their decks. Tap <b>?</b> for how it works and where each piece came from.</p>`;
+      <div class="row soon"><span class="ic">📝</span><span class="tx"><b>Chart it</b><span>Plot on the NZ vital signs chart + sign the med chart. Coming in stage 3.</span></span><span class="go">soon</span></div>      <p class="small faint" style="margin-top:18px">Built from your two marking sheets, Janine’s vital signs demo, Joan’s med admin role play, and their decks. Tap <b>?</b> for how it works and where each piece came from.</p>`;
     $('#decide').onclick = () => { if (p.level) { settings.level = p.level; saveSettings(); } location.hash = p.href; };
     view.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { location.hash = b.dataset.go; });
   }
@@ -576,6 +580,136 @@
     paint();
   }
 
+  /* ---------------- "The RN asks…" question drill ---------------- */
+  const RNQ = window.CLS_RNQ || [];
+  const rnqStats = () => store.get('rnq', {});
+  function rnqPool(run, drug) {
+    return RNQ.filter(q => (q.run === run || q.run === 'both') && (!q.drug || !drug || drug === 'both' || q.drug === drug));
+  }
+  function rnqLine(run) {
+    const pool = rnqPool(run, 'both'), st = rnqStats();
+    const solid = pool.filter(q => st[q.id] && (st[q.id].streak || 0) >= 2).length;
+    return solid ? `${solid} of ${pool.length} solid (right twice in a row)` : `${pool.length} questions ${run === 'vs' ? 'your preceptor' : 'your RN'} could ask`;
+  }
+  function rnqView(run, mode) {
+    const RN = run === 'vs' ? 'Your preceptor' : 'Your RN';
+    setHeader('The RN asks…', RUNS[run], true);
+    if (!mode) {
+      const st = rnqStats();
+      const drugSeg = run === 'ma' ? `<div class="field"><label>Which drug?</label><div class="seg" data-seg="rnqDrug">${[['both', 'Both'], ['para', 'Paracetamol'], ['meto', 'Metoprolol']].map(([v, l]) => `<button data-v="${v}" class="${(settings.rnqDrug || 'both') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>` : '';
+      const pool = rnqPool(run, settings.rnqDrug || 'both');
+      const topics = [...new Set(pool.map(q => q.topic))];
+      view.innerHTML = `
+        <div class="card"><b>${RN} will ask you things during the assessment.</b><p class="small">In Janine’s demo, Joan asked for every normal range and “what’s your responsibility if one is abnormal?”. Joan’s med admin brief says the RN asks you to describe Ask, Build, Check at the end. Answer short: one fact a line.</p></div>
+        ${drugSeg}
+        <button class="row" data-mode="say"><span class="ic">🎙️</span><span class="tx"><b>Say it</b><span>${RN} asks out loud; you answer out loud${V.srSupported ? ' and the mic ticks your key points' : ' (tap to reveal; the mic needs Chrome)'}</span></span><span class="go">›</span></button>
+        <button class="row" data-mode="pick"><span class="ic">👆</span><span class="tx"><b>Pick</b><span>Same questions, four options, instant feedback</span></span><span class="go">›</span></button>
+        <button class="row" data-mode="read"><span class="ic">📖</span><span class="tx"><b>Read them all</b><span>Every question with its short answer and source</span></span><span class="go">›</span></button>
+        <div class="eyebrow">What’s in it</div>
+        <div class="card">${topics.map(t => { const qs = pool.filter(q => q.topic === t); const solid = qs.filter(q => st[q.id] && (st[q.id].streak || 0) >= 2).length; return `<div class="rline"><div class="t"><b>${esc(t)}</b><div class="small muted">${qs.length} questions · ${solid} solid</div></div></div>`; }).join('')}</div>
+        <p class="small faint">A session is 10 questions, weakest first: ones you’ve missed, then ones you haven’t seen. “Solid” means right twice in a row.</p>`;
+      view.querySelectorAll('[data-seg]').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => { settings.rnqDrug = b.dataset.v; saveSettings(); route(); }));
+      view.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { location.hash = '#rnq/' + run + '/' + b.dataset.mode; });
+      return;
+    }
+    const pool = rnqPool(run, settings.rnqDrug || 'both');
+    if (mode === 'read') {
+      setHeader('The RN asks…', RUNS[run] + ' · all ' + pool.length, true);
+      const topics = [...new Set(pool.map(q => q.topic))];
+      view.innerHTML = topics.map(t => `<div class="phase"><h3>${esc(t)}</h3></div>` + pool.filter(q => q.topic === t).map(q => `
+        <div class="step"><div class="hd"><span class="who rn">${RN}</span><button class="play" data-say="${q.id}" aria-label="Hear the question">▶</button></div>
+        <p class="cue"><b>${esc(q.q)}</b></p><div class="say">${esc(q.a).replace(/\n/g, '<br>')}</div><div class="chips">${srcChip(q.src)}</div></div>`).join('')).join('');
+      view.querySelectorAll('[data-say]').forEach(b => b.onclick = () => { V.stopSpeaking(); const q = RNQ.find(x => x.id === b.dataset.say); V.speak(speakable(q.q), 'rn'); });
+      return;
+    }
+    // a session: 10 questions, weakest first
+    const st = rnqStats();
+    const score = q => { const s = st[q.id]; if (!s) return 1 + Math.random() * 0.5; return (s.streak || 0) * 2 - (s.wrong || 0) + Math.random() * 0.5 + (s.streak >= 2 ? 3 : 0); };
+    const set = pool.slice().sort((a, b) => score(a) - score(b)).slice(0, 10);
+    const S = { i: 0, right: 0, missed: [], revealed: false };
+    const listenOn = mode === 'say' && settings.listen && V.srSupported;
+    let advT = null;
+    cleanup = () => { clearTimeout(advT); };
+    if (listenOn) {
+      V.onHeard = (fin, interim) => {
+        const q = set[S.i]; if (!q || S.revealed) return;
+        const h = $('#heard'); if (h) h.textContent = (fin + ' ' + interim).trim().slice(-90);
+        const got = V.match(fin + ' ' + interim, q.keys);
+        got.forEach((g, k) => { const c = view.querySelector(`[data-g="${k}"]`); if (c && g && !c.classList.contains('ok')) { c.classList.remove('wait'); c.classList.add('ok'); c.textContent = '✓ ' + c.textContent; } });
+        if (got.length && got.every(Boolean)) { clearTimeout(advT); advT = setTimeout(() => { if (set[S.i] === q && !S.revealed) { blip(true); reveal(true); } }, 1200); }
+      };
+      V.onState = s => { const lab = $('#micLab'); if (lab) lab.textContent = s === 'on' ? 'Listening…' : s === 'paused' ? 'Paused while the RN talks' : s === 'denied' ? 'Mic blocked: tap “Show answer” instead' : s === 'error' ? 'Needs internet: tap “Show answer”' : 'Mic off'; const m = $('#mic'); if (m) m.classList.toggle('on', s === 'on'); };
+      V.listen();
+    }
+    function render() {
+      clearTimeout(advT); S.revealed = false;
+      const q = set[S.i]; if (!q) return done();
+      V.clearHeard();
+      const pct = Math.round(100 * S.i / set.length);
+      let body = `<span class="who rn">${RN}</span><div class="bigt">${esc(q.q)}</div>`;
+      if (mode === 'pick') {
+        body += shuffle(q.opts.map((o, k) => ({ o, k }))).map(x => `<button class="opt" data-k="${x.k}">${esc(x.o)}</button>`).join('') + '<div id="fb"></div>';
+      } else {
+        body += listenOn ? `<div class="keys">${q.keys.map((g, k) => `<span class="chip wait" data-g="${k}">key point ${k + 1}</span>`).join('')}</div>
+          <div class="mic" id="mic"><span class="dot"></span><span id="micLab">Listening…</span><span class="heard" id="heard"></span></div>` : '<p class="small muted">Say your answer out loud, then show the answer.</p>';
+        body += '<div id="fb"></div>';
+      }
+      view.innerHTML = `<div class="live-top"><span>${esc(q.topic)}</span><span class="sp"></span><span class="num">${S.i + 1}/${set.length}</span></div>
+        <div class="progress"><i style="width:${pct}%"></i></div><div class="stage">${body}</div><div class="live-actions" id="acts"></div>`;
+      const acts = $('#acts');
+      if (mode === 'pick') {
+        view.querySelectorAll('.stage .opt').forEach(b => b.onclick = () => {
+          if (S.revealed) return;
+          const ok = b.dataset.k === '0';
+          view.querySelectorAll('.stage .opt').forEach(x => { x.disabled = true; if (x.dataset.k === '0') x.classList.add('right'); else if (x === b) x.classList.add('wrong'); });
+          reveal(ok);
+        });
+        if (settings.speak && V.ttsSupported) V.speak(speakable(q.q), 'rn');
+      } else {
+        const sb = document.createElement('button'); sb.className = 'btn primary'; sb.textContent = 'Show answer'; sb.onclick = () => reveal(null); acts.appendChild(sb);
+        const rb = document.createElement('button'); rb.className = 'btn narrow'; rb.textContent = '🔁'; rb.setAttribute('aria-label', 'Hear the question again'); rb.onclick = () => V.speak(speakable(q.q), 'rn'); acts.prepend(rb);
+        if (V.ttsSupported) V.speak(speakable(q.q), 'rn');
+      }
+    }
+    function reveal(ok) {
+      if (S.revealed) return; S.revealed = true; clearTimeout(advT);
+      const q = set[S.i];
+      const fb = $('#fb'), acts = $('#acts');
+      const ans = `<div class="say" style="font-style:normal">${esc(q.a).replace(/\n/g, '<br>')}</div><div class="chips">${srcChip(q.src)}</div>`;
+      if (ok !== null) {
+        blip(ok);
+        fb.innerHTML = `<div class="card ${ok ? 'good' : 'bad'}"><b>${ok ? 'Yes.' : 'Not quite. The short answer:'}</b>${ans}</div>`;
+        record(q, ok);
+        acts.innerHTML = '';
+        const nb = document.createElement('button'); nb.className = 'btn primary'; nb.textContent = S.i + 1 < set.length ? 'Next' : 'See how you did'; nb.onclick = next; acts.appendChild(nb); nb.focus();
+      } else {
+        fb.innerHTML = `<div class="card"><b>The short answer:</b>${ans}<p class="small muted">Did you say that, in your own words?</p></div>`;
+        acts.innerHTML = '';
+        const y = document.createElement('button'); y.className = 'btn good'; y.textContent = 'I got it ✓'; y.onclick = () => { record(q, true); next(); };
+        const n = document.createElement('button'); n.className = 'btn bad'; n.textContent = 'Missed it ✗'; n.onclick = () => { record(q, false); next(); };
+        acts.appendChild(n); acts.appendChild(y);
+      }
+    }
+    function record(q, ok) {
+      const all = rnqStats(); const s = all[q.id] || { seen: 0, right: 0, wrong: 0, streak: 0 };
+      s.seen++; if (ok) { s.right++; s.streak = (s.streak || 0) + 1; S.right++; } else { s.wrong++; s.streak = 0; S.missed.push(q.id); }
+      s.last = Date.now(); all[q.id] = s; store.set('rnq', all);
+    }
+    function next() { V.stopSpeaking(); S.i++; render(); window.scrollTo(0, 0); }
+    function done() {
+      V.stopListening();
+      addLog({ type: 'rnq', t: new Date().toISOString(), run, mode, total: set.length, right: S.right, missed: S.missed });
+      const pass = set.length >= 8 && S.right / set.length >= 0.8;
+      view.innerHTML = `<div class="card ${pass ? 'good' : 'warn'}"><div class="verdict ${pass ? 'met' : ''}">${S.right} / ${set.length}</div>
+        <p>${pass ? 'Solid. Next session serves the ones you’re least sure of.' : 'Saved. The ones you missed come back first next time.'}</p>
+        ${S.missed.length ? '<div class="eyebrow">Missed: the short answers</div>' + S.missed.map(id => { const q = RNQ.find(x => x.id === id); return `<div class="step"><p class="cue"><b>${esc(q.q)}</b></p><div class="say" style="font-style:normal">${esc(q.a).replace(/\n/g, '<br>')}</div></div>`; }).join('') : ''}</div>
+        <div class="btns"><button class="btn primary" id="again">Another 10</button><button class="btn" data-go="#home">Home</button></div>`;
+      $('#again').onclick = () => route();
+      view.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { location.hash = b.dataset.go; });
+    }
+    render();
+  }
+
   /* ---------------- rubric (read-only) ---------------- */
   function rubricView(run) {
     const rub = D.RUBRIC[run];
@@ -605,6 +739,7 @@
     view.innerHTML = L.slice(0, 120).map(e => {
       if (e.type === 'live') return `<div class="row"><span class="ic">${e.met ? '✅' : '❌'}</span><span class="tx"><b>${esc(RUNS[e.run])} · ${esc(e.level)}${e.drug ? ' · ' + esc(D.DRUGS[e.drug].generic) : ''}</b><span>${fmt(e.t)} · ${Math.round(e.secs / 60)} min · ${e.met ? 'Met' : (e.failed || []).length + ' line(s) not met'}${e.peeks ? ' · ' + e.peeks + ' peeks' : ''}</span></span></div>`;
       if (e.type === 'order') return `<div class="row"><span class="ic">🔢</span><span class="tx"><b>What’s next? · ${esc(RUNS[e.run])} · ${esc(e.scope)}</b><span>${fmt(e.t)} · ${e.total - e.misses}/${e.total} first time</span></span></div>`;
+      if (e.type === 'rnq') return `<div class="row"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · ${esc(RUNS[e.run])} · ${esc(e.mode)}</b><span>${fmt(e.t)} · ${e.right}/${e.total} right</span></span></div>`;
       if (e.type === 'bp') return `<div class="row"><span class="ic">${e.ok ? '🎯' : '🎚️'}</span><span class="tx"><b>BP Lab · you read ${esc(e.you)} (true ${esc(e.truth)})</b><span>${fmt(e.t)} · ${esc(e.note || '')}</span></span></div>`;
       return '';
     }).join('') + `<div class="btns"><button class="btn bad" id="wipe">Clear my log</button></div>`;

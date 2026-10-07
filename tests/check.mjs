@@ -10,7 +10,7 @@ let fails = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { fails++; console.log('FAIL ' + msg); } };
 
 // 1. every script parses as a classic script
-for (const f of ['js/data.js', 'js/voice.js', 'js/bp.js', 'js/app.js', 'sw.js']) {
+for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/app.js', 'sw.js']) {
   try { new vm.Script(read(f), { filename: f }); ok(true); } catch (e) { ok(false, `${f} does not parse: ${e.message}`); }
 }
 
@@ -74,9 +74,35 @@ for (const c of D.CURVE) {
   const lens = c.opts.map(o => o.length);
   ok(lens[0] <= 1.2 * Math.max(...lens.slice(1)), `${c.id}: right answer is ${lens[0]} chars vs longest wrong ${Math.max(...lens.slice(1))} (length leak)`);
 }
-const longestRight = D.CURVE.filter(c => c.opts[0].length === Math.max(...c.opts.map(o => o.length))).length;
+const longestRight = D.CURVE.filter(c => c.opts[0].length > Math.max(...c.opts.slice(1).map(o => o.length))).length;
 ok(longestRight <= Math.ceil(0.4 * D.CURVE.length), `right answer is the longest option in ${longestRight}/${D.CURVE.length} curveballs (max 40%)`);
 console.log(`curveballs: right answer longest in ${longestRight}/${D.CURVE.length}`);
+
+// "The RN asks…" question bank
+vm.runInContext(read('js/rnq-data.js'), sandbox);
+const RNQ = sandbox.window.CLS_RNQ || [];
+ok(RNQ.length >= 40, `RN question bank has only ${RNQ.length} questions`);
+const rIdsQ = RNQ.map(q => q.id);
+ok(new Set(rIdsQ).size === rIdsQ.length, 'duplicate RN question ids');
+const qTexts = RNQ.map(q => q.q);
+ok(new Set(qTexts).size === qTexts.length, 'two RN questions share the same wording (ambiguous when both drugs are on): ' + qTexts.filter((t, i) => qTexts.indexOf(t) !== i).join(' | '));
+for (const q of RNQ) {
+  ok(['vs', 'ma', 'both'].includes(q.run), `${q.id}: bad run ${q.run}`);
+  ok(!q.drug || ['para', 'meto'].includes(q.drug), `${q.id}: bad drug ${q.drug}`);
+  ok(q.topic && q.q && q.a, `${q.id}: needs topic, q, a`);
+  ok(q.src && D.SRC[q.src[0]], `${q.id}: missing/unknown source ${q.src && q.src[0]}`);
+  ok(Array.isArray(q.keys) && q.keys.length && q.keys.every(g => g.length), `${q.id}: needs key groups`);
+  const hit = V.match(q.a, q.keys);
+  ok(hit.every(Boolean), `${q.id}: its own short answer misses key group(s) ${hit.map((h, i) => h ? '' : JSON.stringify(q.keys[i])).filter(Boolean).join(' ')}`);
+  ok(Array.isArray(q.opts) && q.opts.length === 4 && new Set(q.opts).size === 4, `${q.id}: needs 4 distinct options`);
+  const L = q.opts.map(o => o.length);
+  ok(L[0] <= 1.2 * Math.max(...L.slice(1)), `${q.id}: right option ${L[0]} chars vs longest wrong ${Math.max(...L.slice(1))} (length leak)`);
+  ok(q.a.split('\n').length <= 4, `${q.id}: short answer over 4 lines`);
+}
+// strictly longest only: a tie gives the eye nothing to go on
+const rnqLongest = RNQ.filter(q => q.opts[0].length > Math.max(...q.opts.slice(1).map(o => o.length))).length;
+ok(rnqLongest <= Math.ceil(0.4 * RNQ.length), `RN questions: right option is the longest in ${rnqLongest}/${RNQ.length} (max 40%)`);
+console.log(`RN questions: ${RNQ.length}; right option longest in ${rnqLongest}`);
 
 // drugs
 for (const k of ['para', 'meto']) { const d = D.DRUGS[k]; ok(d.generic && d.indication && d.adverse && d.src.every(s => D.SRC[s[0]]), `drug ${k} incomplete`); }

@@ -21,6 +21,8 @@
     'healthify': { label: 'Healthify', full: 'healthify.nz medicine pages (metoprolol, paracetamol), the plain-language NZ source' },
     'ds-para': { label: 'Paracetamol data sheet', full: 'Medsafe NZ data sheet, Pacimol 500 mg (the one Joan’s pharmacokinetics deck cites)' },
     'ds-meto': { label: 'Metoprolol CR data sheet', full: 'Medsafe NZ data sheet, metoprolol succinate CR (Myloc CR)' },
+    'quiz-vs': { label: 'Janine’s VS quiz', full: 'Canvas: Vital Signs Quiz (722.556), Janine’s own questions' },
+    'deck-ai2det': { label: 'BN1 AI2DET slides', full: '722.553 Hand hygiene and bed making 2026 (slides 27–33): the AI2DET communication memory aid' },
     'tool': { label: 'Trainer tip', full: 'The trainer’s own advice. Not from your course material; check it against what your lecturer says.' },
   };
 
