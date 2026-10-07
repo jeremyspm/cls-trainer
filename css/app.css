@@ -14,6 +14,8 @@
   --r:16px; --maxw:760px;
   /* app-only domain hues: who is speaking */
   --you:#818CF8; --pt:#5AC8FA; --rn:#FF9F0A;
+  /* NZ vital signs chart zones (tints, as on the paper chart) */
+  --z-w:transparent; --z-y:rgba(255,214,10,.22); --z-o:rgba(255,159,10,.26); --z-p:rgba(255,105,140,.26); --z-b:rgba(100,160,255,.26);
 }
 html[data-theme="light"]{
   --bg:#eceef3; --bg2:#eceef3; --card:#ffffff; --card2:#f4f5f7;
@@ -27,6 +29,7 @@ html[data-theme="light"]{
   --gBad:color-mix(in srgb,var(--bad) 12%,transparent);
   --shadow:0 14px 36px rgba(20,24,40,.10);
   --you:#4F46E5; --pt:#0A6FA8; --rn:#A35C00;
+  --z-w:#ffffff; --z-y:#fff3b0; --z-o:#fbd9b4; --z-p:#f6cfd9; --z-b:#d3e1f5;
 }
 @media (prefers-color-scheme:light){
   :root:not([data-theme]){--bg:#eceef3;--card:#fff;--tx:#16161a}
@@ -217,6 +220,30 @@ input[type=text],input[type=number],input[type=date],select{font-size:16px;width
 .checklist{list-style:none;padding:0;margin:6px 0}
 .checklist li{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14.5px}
 .checklist li i{font-style:normal;width:20px;flex:0 0 20px;text-align:center}
+
+/* Chart it: one column of the vital signs chart */
+.vchart{border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:10px 0;background:var(--card)}
+.vc-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--card2);border-bottom:1px solid var(--line2)}
+.vc-h span{font-size:12.5px;color:var(--tx2);font-style:italic}
+.vc-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;align-items:stretch;width:100%;min-height:34px;border-top:1px solid var(--line);padding:0;text-align:left;font-size:14px}
+.vc-row:first-of-type{border-top:none}
+.vc-row:disabled{opacity:1;cursor:default}
+.vc-l{padding:7px 12px;font-variant-numeric:tabular-nums}
+.vc-c{border-left:1px dashed var(--line2);display:flex;align-items:center;justify-content:center;gap:4px;font-weight:800}
+.vc-row.z-w{background:var(--z-w)} .vc-row.z-y{background:var(--z-y)} .vc-row.z-o{background:var(--z-o)} .vc-row.z-p{background:var(--z-p)} .vc-row.z-b{background:var(--z-b)}
+.vc-row:not(:disabled):hover .vc-c{background:var(--acc-soft)}
+.vc-row.right{box-shadow:inset 0 0 0 2px var(--good)}
+.vc-row.wrong{box-shadow:inset 0 0 0 2px var(--bad)}
+.mk{font-size:17px;line-height:1;color:var(--tx)}
+.mk.arrow{font-size:20px;color:var(--acc-tx)}
+.mk.dots{color:var(--tx2)}
+.chip.pickc.ok{color:var(--acc-tx);background:var(--acc-soft);border-color:var(--acc)}
+/* Sign the med chart */
+.nmc{border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:10px 0;background:var(--card)}
+.nmc-h{padding:8px 12px;background:color-mix(in srgb,var(--pt) 16%,transparent);font-weight:700;font-size:14px}
+.nmc-rx{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:1px;background:var(--line)}
+.nmc-rx span{background:var(--card);padding:8px 12px;font-weight:600;font-size:14.5px}
+.nmc-rx i{display:block;font-style:normal;font-weight:400;font-size:11.5px;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em}
 
 @media (min-width:640px){
   .wrap{padding-top:16px}

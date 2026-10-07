@@ -138,6 +138,8 @@
     if (name === 'live') return liveView(arg || 'vs');
     if (name === 'rubric') return rubricView(arg || 'vs');
     if (name === 'rnq') return rnqView(arg || 'vs', arg2);
+    if (name === 'chart') return chartView(arg === 'ma' ? 'ma' : 'vs');
+    if (name === 'cuff') return cuffView();
     if (name === 'log') return logView();
     if (name === 'bp') return bpView();
     return homeView();
@@ -150,6 +152,14 @@
     for (const e of log()) if (e.type === 'live' && e.run === run && e.met) best = Math.max(best, LEVELS.findIndex(l => l[0] === e.level));
     return best;
   }
+  function chartClean(run) { return log().some(e => e.type === 'chart' && e.run === run && e.right === e.total); }
+  function cuffStreak() { const L = log().filter(e => e.type === 'cuff'); let n = 0; for (let i = L.length - 1; i >= 0 && L[i].first; i--) n++; return n; }
+  function cuffToday() { const d = new Date().toDateString(); return log().some(e => e.type === 'cuff' && new Date(e.t).toDateString() === d); }
+  function cuffLine() {
+    if (!store.get('cuffArrived', false)) return 'For when your cuff arrives: first-try readings, target 10 in a row';
+    const n = log().filter(e => e.type === 'cuff').length;
+    return n ? `First-try streak ${cuffStreak()} of 10 · ${n} real readings` : 'Log your first real reading';
+  }
   function rnqPassed(run) { return log().some(e => e.type === 'rnq' && e.run === run && e.total >= 8 && e.right / e.total >= 0.8); }
   function orderClean(run, scope) { return log().some(e => e.type === 'order' && e.run === run && e.scope === scope && e.misses === 0); }
   function weakSteps(run) {
@@ -161,11 +171,14 @@
     if (!orderClean('vs', 'bp')) return { href: '#order/vs/bp', t: 'What’s next? BP only', why: 'The two-step order is where you got stopped. Get one clean run of the BP sequence.' };
     if (!L.some(e => e.type === 'bp' && e.ok)) return { href: '#bp', t: 'BP Lab: one clean reading', why: 'Feel the pulse go, hear the taps, and watch the needle fall at 2–3 mmHg a second.' };
     if (!rnqPassed('vs')) return { href: '#rnq/vs', t: 'The RN asks: vital signs', why: 'Ten questions your preceptor could ask: normal ranges, the two-step, charting. Get 8 or more right in one go.' };
+    if (store.get('cuffArrived', false) && cuffStreak() < 10 && !cuffToday()) return { href: '#cuff', t: 'Real cuff: take one reading', why: `Your first-try streak is ${cuffStreak()} of 10. One real reading on a real arm beats ten simulated ones.` };
     const vsLvl = bestLevelMet('vs');
     if (vsLvl < 0) return { href: '#setup/vs', t: 'Live run: vital signs (Coach)', why: 'Say it out loud with everything on screen. The app plays Mr Luke and your preceptor.', level: 'coach' };
+    if (!chartClean('vs')) return { href: '#chart/vs', t: 'Chart it: one clean column', why: '“Accurately documents findings directly on vital signs chart” is a rubric line. Plot a set of obs: X, number, arrows.' };
     if (!s['walk-ma']) return { href: '#walk/ma', t: 'Read the med admin run once', why: 'Same patient, Mr Luke. Joan’s role play, step by step.' };
     if (!orderClean('ma', 'all')) return { href: '#order/ma/all', t: 'What’s next? Med admin', why: 'Lock in the order: chart → drug → expiry → bedside → Ask, Build, Check → sign.' };
     if (!rnqPassed('ma')) return { href: '#rnq/ma', t: 'The RN asks: med admin', why: 'The rights, the two drugs, and Ask–Build–Check. Get 8 or more right in one go.' };
+    if (!chartClean('ma')) return { href: '#chart/ma', t: 'Sign the med chart', why: 'Three rubric lines: correct medication; correct date, time, dose; appropriate initials. Get one entry fully right.' };
     const maLvl = bestLevelMet('ma');
     const weak = weakSteps('vs').concat(weakSteps('ma'));
     if (weak.length) return { href: '#order/' + (weakSteps('vs').length ? 'vs' : 'ma') + '/weak', t: 'Fix your weak steps', why: weak.length + ' step' + (weak.length > 1 ? 's' : '') + ' you’ve missed in “What’s next?” and haven’t got right twice since.' };
@@ -202,6 +215,8 @@
         <button class="row" data-go="#setup/vs"><span class="ic">🎙️</span><span class="tx"><b>Live run</b><span>Out loud, start to finish</span></span></button>
       </div>
       <button class="row" data-go="#rnq/vs"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · vital signs</b><span>${rnqLine('vs')}</span></span><span class="go">›</span></button>
+      <button class="row" data-go="#chart/vs"><span class="ic">📝</span><span class="tx"><b>Chart it</b><span>Plot the obs on the NZ vital signs chart, 24-hour time, spot the abnormal</span></span><span class="go">›</span></button>
+      <button class="row" data-go="#cuff"><span class="ic">🩺</span><span class="tx"><b>Real cuff log</b><span>${cuffLine()}</span></span><span class="go">›</span></button>
       <h3>💊 Medication administration <span class="small muted">· Mr Luke</span></h3>
       <div class="grid2">
         <button class="row" data-go="#walk/ma"><span class="ic">📖</span><span class="tx"><b>Walkthrough</b><span>Chart → bedside → sign</span></span></button>
@@ -210,11 +225,11 @@
         <button class="row" data-go="#rubric/ma"><span class="ic">📋</span><span class="tx"><b>The marking sheet</b><span>Every line, word for word</span></span></button>
       </div>
       <button class="row" data-go="#rnq/ma"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · med admin</b><span>${rnqLine('ma')}</span></span><span class="go">›</span></button>
+      <button class="row" data-go="#chart/ma"><span class="ic">✍️</span><span class="tx"><b>Sign the med chart</b><span>Date, 24-hour time, dose with units, Giv/Chck, or the right code</span></span><span class="go">›</span></button>
       <div class="eyebrow">More</div>
       <button class="row" data-go="#order/vs/all"><span class="ic">🔢</span><span class="tx"><b>What’s next? · whole vital signs run</b><span>Chart to hand hygiene</span></span><span class="go">›</span></button>
       <button class="row" data-go="#rubric/vs"><span class="ic">📋</span><span class="tx"><b>Vital signs marking sheet</b><span>Every line, word for word</span></span><span class="go">›</span></button>
-      <button class="row" data-go="#log"><span class="ic">📈</span><span class="tx"><b>Your log</b><span>${L.length ? L.length + ' entries' : 'Nothing yet'}</span></span><span class="go">›</span></button>
-      <div class="row soon"><span class="ic">📝</span><span class="tx"><b>Chart it</b><span>Plot on the NZ vital signs chart + sign the med chart. Coming in stage 3.</span></span><span class="go">soon</span></div>      <p class="small faint" style="margin-top:18px">Built from your two marking sheets, Janine’s vital signs demo, Joan’s med admin role play, and their decks. Tap <b>?</b> for how it works and where each piece came from.</p>`;
+      <button class="row" data-go="#log"><span class="ic">📈</span><span class="tx"><b>Your log</b><span>${L.length ? L.length + ' entries' : 'Nothing yet'}</span></span><span class="go">›</span></button>      <p class="small faint" style="margin-top:18px">Built from your two marking sheets, Janine’s vital signs demo, Joan’s med admin role play, and their decks. Tap <b>?</b> for how it works and where each piece came from.</p>`;
     $('#decide').onclick = () => { if (p.level) { settings.level = p.level; saveSettings(); } location.hash = p.href; };
     view.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { location.hash = b.dataset.go; });
   }
@@ -744,11 +759,24 @@
     view.innerHTML = L.slice(0, 120).map(e => {
       if (e.type === 'live') return `<div class="row"><span class="ic">${e.met ? '✅' : '❌'}</span><span class="tx"><b>${esc(RUNS[e.run])} · ${esc(e.level)}${e.drug ? ' · ' + esc(D.DRUGS[e.drug].generic) : ''}</b><span>${fmt(e.t)} · ${Math.round(e.secs / 60)} min · ${e.met ? 'Met' : (e.failed || []).length + ' line(s) not met'}${e.peeks ? ' · ' + e.peeks + ' peeks' : ''}</span></span></div>`;
       if (e.type === 'order') return `<div class="row"><span class="ic">🔢</span><span class="tx"><b>What’s next? · ${esc(RUNS[e.run])} · ${esc(e.scope)}</b><span>${fmt(e.t)} · ${e.total - e.misses}/${e.total} first time</span></span></div>`;
+      if (e.type === 'chart') return `<div class="row"><span class="ic">${e.run === 'vs' ? '📝' : '✍️'}</span><span class="tx"><b>${e.run === 'vs' ? 'Chart it' : 'Sign the med chart'}${e.kind ? ' · ' + esc(e.kind) : ''}</b><span>${fmt(e.t)} · ${e.right}/${e.total}</span></span></div>`;
+      if (e.type === 'cuff') return `<div class="row"><span class="ic">${e.first ? '🎯' : '🔁'}</span><span class="tx"><b>Real cuff · ${e.first ? 'first try' : 'took more than one go'}${e.mine ? ' · ' + esc(e.mine) : ''}</b><span>${fmt(e.t)}${(e.problems || []).length ? ' · ' + esc(e.problems.join(', ')) : ''}</span></span></div>`;
       if (e.type === 'rnq') return `<div class="row"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · ${esc(RUNS[e.run])} · ${esc(e.mode)}</b><span>${fmt(e.t)} · ${e.right}/${e.total} right</span></span></div>`;
       if (e.type === 'bp') return `<div class="row"><span class="ic">${e.ok ? '🎯' : '🎚️'}</span><span class="tx"><b>BP Lab · you read ${esc(e.you)} (true ${esc(e.truth)})</b><span>${fmt(e.t)} · ${esc(e.note || '')}</span></span></div>`;
       return '';
     }).join('') + `<div class="btns"><button class="btn bad" id="wipe">Clear my log</button></div>`;
     $('#wipe').onclick = () => { if (confirm('Clear every logged run and drill on this phone?')) { store.set('log', []); store.set('drill', {}); store.set('seen', {}); route(); } };
+  }
+
+  /* ---------------- stage 3: Chart it, Sign the med chart, Real cuff ---------------- */
+  const chartApi = () => ({ D, esc, srcChip, blip, toast, shuffle, addLog, log, store });
+  function chartView(kind) {
+    setHeader(kind === 'vs' ? 'Chart it' : 'Sign the med chart', kind === 'vs' ? 'NZ adult vital signs chart' : 'Mr Luke’s National Medication Chart', true);
+    if (kind === 'vs') window.CLS_CHART.mountVS(view, chartApi()); else window.CLS_CHART.mountMA(view, chartApi());
+  }
+  function cuffView() {
+    setHeader('Real cuff', 'Your own readings, logged', true);
+    window.CLS_CHART.mountCuff(view, chartApi());
   }
 
   /* ---------------- BP Lab ---------------- */

@@ -10,7 +10,7 @@ let fails = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { fails++; console.log('FAIL ' + msg); } };
 
 // 1. every script parses as a classic script
-for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/app.js', 'sw.js']) {
+for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/chart.js', 'js/app.js', 'sw.js']) {
   try { new vm.Script(read(f), { filename: f }); ok(true); } catch (e) { ok(false, `${f} does not parse: ${e.message}`); }
 }
 
@@ -103,6 +103,23 @@ for (const q of RNQ) {
 const rnqLongest = RNQ.filter(q => q.opts[0].length > Math.max(...q.opts.slice(1).map(o => o.length))).length;
 ok(rnqLongest <= Math.ceil(0.4 * RNQ.length), `RN questions: right option is the longest in ${rnqLongest}/${RNQ.length} (max 40%)`);
 console.log(`RN questions: ${RNQ.length}; right option longest in ${rnqLongest}`);
+
+// the vital signs chart: every plausible value lands in exactly ONE row; zones are known; scenarios always plot
+vm.runInContext(read('js/chart.js'), sandbox);
+const CH = sandbox.window.CLS_CHART;
+for (const [sec, lo, hi, step] of [['temp', 33, 41, 0.1], ['hr', 30, 160, 1], ['rr', 0, 45, 1], ['bp', 50, 240, 1]]) {
+  for (let v = lo; v <= hi + 1e-9; v = Math.round((v + step) * 10) / 10) {
+    const hits = D.CHART[sec].rows.filter(r => v >= r[1] && v <= r[2]).length;
+    if (hits !== 1) { ok(false, `chart ${sec}: value ${v} lands in ${hits} rows`); break; }
+  }
+  ok(D.CHART[sec].rows.every(r => D.ZONES[r[3]]), `chart ${sec}: unknown zone`);
+}
+for (let i = 0; i < 2000; i++) {
+  const o = CH.makeObs();
+  const bad = [['temp', o.temp], ['hr', o.hr], ['rr', o.rr], ['bp', o.sys], ['bp', o.dia]].find(([s, v]) => CH.rowFor(D.CHART[s], v) < 0);
+  if (bad || !/^\d{4}$/.test(o.time24) || !/^\d{1,2}:\d{2} (am|pm)$/.test(o.time12)) { ok(false, `chart scenario can't be plotted: ${JSON.stringify(o)}`); break; }
+}
+ok(D.NMC.rn.initials === 'JC' && D.NMC.doses.para && D.NMC.doses.meto, 'NMC data incomplete');
 
 // drugs
 for (const k of ['para', 'meto']) { const d = D.DRUGS[k]; ok(d.generic && d.indication && d.adverse && d.src.every(s => D.SRC[s[0]]), `drug ${k} incomplete`); }

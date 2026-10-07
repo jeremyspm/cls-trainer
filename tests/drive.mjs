@@ -131,6 +131,63 @@ async function run(width, height) {
   ok(+(await page.locator('#gread').textContent()) > 20, `${tag} bp: pumping did not raise the pressure`);
   await overflow('bp lab');
 
+  // Chart it: plot a whole column correctly → 7/7
+  await go('#chart/vs');
+  const obs = await page.evaluate(() => {
+    const m = document.querySelector('.card').innerText.match(/Temp ([\d.]+) °C · HR (\d+) · RR (\d+) · BP (\d+)\/(\d+) · taken at (\d+):(\d+) (am|pm)/);
+    let h = +m[6] % 12; if (m[8] === 'pm') h += 12;
+    return { temp: +m[1], hr: +m[2], rr: +m[3], sys: +m[4], dia: +m[5], t24: String(h).padStart(2, '0') + m[7] };
+  });
+  await page.click(`[data-t="${obs.t24}"]`); await page.click('#nx');
+  for (const [sec, v] of [['temp', obs.temp], ['hr', obs.hr], ['rr', obs.rr], ['bp', obs.sys], ['bp', obs.dia]]) {
+    const ri = await page.evaluate(([s, val]) => CLS_CHART.rowFor(CLS_DATA.CHART[s], val), [sec, v]);
+    await page.click(`.vc-row[data-ri="${ri}"]`); await page.click('#nx');
+  }
+  const abn = { temp: obs.temp < 36.5 || obs.temp > 37.5, hr: obs.hr < 60 || obs.hr > 100, rr: obs.rr < 12 || obs.rr > 20, bp: obs.sys < 110 || obs.sys > 140 || obs.dia < 60 || obs.dia > 90 };
+  for (const k of Object.keys(abn)) if (abn[k]) await page.click(`.pickc[data-k="${k}"]`);
+  await page.click('#abnGo'); await page.click('#nx');
+  ok((await page.locator('.verdict').innerText()).trim() === '7 / 7', `${tag} chart it: expected 7/7 for a correct column`);
+  await overflow('chart it');
+
+  // Sign the med chart: a bare-number dose is refused with the unit message, then a correct entry signs clean
+  let sawBare = false;
+  for (let tries = 0; tries < 14; tries++) {
+    await go('#home'); await go('#chart/ma');
+    const s = await page.evaluate(() => {
+      const story = document.querySelector('.card').innerText, rx = document.querySelector('.nmc-rx').innerText;
+      const drug = /PARACETAMOL/.test(rx) ? 'para' : 'meto';
+      const kind = /refused/.test(story) ? 'refused' : /withheld/.test(story) ? 'withheld' : 'given';
+      let at;
+      const m12 = story.match(/at (\d{1,2}):(\d{2}) (am|pm)/);
+      if (m12) { let h = +m12[1] % 12; if (m12[3] === 'pm') h += 12; at = String(h).padStart(2, '0') + m12[2]; } else at = story.match(/At (\d{4})/)[1];
+      const d = new Date(); const date = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getFullYear()).slice(2);
+      return { drug, kind, at, date, needInit: !!document.querySelector('#myInit') };
+    });
+    if (s.needInit) await page.fill('#myInit', 'ZQ');
+    const dose = s.kind === 'refused' ? 'R' : s.kind === 'withheld' ? 'W' : (s.drug === 'para' ? '1 g' : '47.5 mg');
+    await page.fill('#fDate', s.date); await page.fill('#fTime', s.at); await page.fill('#fGiv', 'ZQ'); await page.fill('#fChk', 'JC');
+    if (s.kind === 'given' && !sawBare) {
+      await page.fill('#fDose', s.drug === 'para' ? '1' : '47.5'); await page.click('#sign');
+      ok((await page.locator('#fb').innerText()).includes('Write the unit too'), `${tag} med chart: bare-number dose not caught`);
+      sawBare = true;
+    }
+    await page.fill('#fDose', dose); await page.click('#sign');
+    ok((await page.locator('#fb .verdict').innerText()).includes('Signed correctly'), `${tag} med chart (${s.drug}/${s.kind} at ${s.at}): a correct entry was not accepted`);
+    if (sawBare && tries >= 2) break;
+  }
+  ok(sawBare, `${tag} med chart: never dealt a "given" scenario in 14 tries`);
+  await overflow('sign the med chart');
+
+  // Real cuff: arrive, log a first-try reading, then a miss with a reason
+  await go('#cuff');
+  if (await page.locator('#arr').count()) await page.click('#arr');
+  await page.click('#firstSeg [data-v="1"]'); await page.fill('#mine', '120/80'); await page.fill('#auto', '122/78'); await page.click('#save');
+  ok((await page.locator('.stat b').first().innerText()).trim() === '1', `${tag} cuff: streak should be 1 after a first-try reading`);
+  await page.click('#firstSeg [data-v="0"]'); await page.click('#probs .pickc >> nth=0'); await page.click('#save');
+  ok((await page.locator('.stat b').first().innerText()).trim() === '0', `${tag} cuff: streak should reset after a miss`);
+  ok((await page.locator('#view').innerText()).includes('most common slip'), `${tag} cuff: most common slip not shown`);
+  await overflow('cuff');
+
   for (const h of ['#rubric/vs', '#rubric/ma', '#log', '#rnq/vs', '#rnq/ma/read']) { await go(h); await overflow(h); }
 
   ok(errors.length === 0, `${tag} console errors: ${errors.slice(0, 3).join(' | ')}`);
