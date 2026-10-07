@@ -52,6 +52,19 @@ async function run(width, height) {
   ok(await page.locator('[data-go^="#rnq"]').count() === 2, `${tag} home: two RN-asks rows`);
   await overflow('home');
 
+  // recorded voices: the manifest loads, and every patient / RN line in a live run has a clip
+  const voice = await page.evaluate(async () => {
+    await Voice.ready;
+    const miss = [];
+    for (const [run, drug] of [['vs', null], ['ma', 'para'], ['ma', 'meto']]) {
+      for (const s of CLS_APP.steps(run, drug)) if ((s.kind === 'pt' || s.kind === 'rn') && !Voice.hasClip(s.line, s.kind)) miss.push(s.id);
+    }
+    for (const q of CLS_RNQ) if (!Voice.hasClip(q.q, 'rn')) miss.push(q.id);
+    return { loaded: !!Voice.clips, miss };
+  });
+  ok(voice.loaded, `${tag} audio/manifest.json did not load`);
+  ok(voice.miss.length === 0, `${tag} lines with no recorded clip: ${voice.miss.slice(0, 5).join(', ')}`);
+
   // walkthroughs render, no unfilled placeholders
   for (const h of ['#walk/vs', '#walk/ma/para', '#walk/ma/meto']) {
     await go(h);

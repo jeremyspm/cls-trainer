@@ -16,8 +16,9 @@
     get(k, d) { try { const v = localStorage.getItem('cls.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('cls.' + k, JSON.stringify(v)); } catch (e) { } },
   };
-  const settings = Object.assign({ level: 'coach', speak: true, listen: true, curve: 'some', drug: 'random', awake: true, rate: 1 }, store.get('settings', {}));
-  const saveSettings = () => store.set('settings', settings);
+  const settings = Object.assign({ level: 'coach', speak: true, listen: true, curve: 'some', drug: 'random', awake: true, rate: 1, voice: 'natural' }, store.get('settings', {}));
+  const saveSettings = () => { store.set('settings', settings); V.mode = settings.voice; };
+  V.mode = settings.voice;
   const log = () => store.get('log', []);
   const addLog = e => { const l = log(); l.push(e); store.set('log', l.slice(-400)); };
   const seen = () => store.get('seen', {});
@@ -42,7 +43,7 @@
   const rubricText = id => { for (const r of Object.values(D.RUBRIC)) for (const sec of r.sections) for (const [k, t] of sec.lines) if (k === id) return t; return id; };
   const short = (t, n) => (t.length > n ? t.slice(0, n - 1).trim() + '…' : t);
   function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-  const speakable = s => String(s || '').replace(/_{2,}/g, ', ').replace(/\bNHI\b/g, 'N H I').replace(/\bDGY\b/g, 'D G Y');
+  const speakable = s => String(s || ''); // Voice.speak makes it sayable (V.speakable) — one place, so recorded-clip keys match
   function toast(msg, ms) {
     const t = $('#toast'); t.textContent = msg; t.hidden = false;
     clearTimeout(toast.h); toast.h = setTimeout(() => { t.hidden = true; }, ms || 2600);
@@ -108,13 +109,15 @@
       <b>BP Lab</b>: the two-step blood pressure on a simulated gauge, with tapping sounds and a pulse you feel through the phone.</p>
       <h3>Listening</h3>
       <p>${V.srSupported ? 'Your browser can listen. ' : '<b>This browser can’t listen</b> (Firefox can’t). Open the page in Chrome on your phone for the mic. Everything else works here. '}The mic only ticks off key words (like “date of birth”). It isn’t marking your English. Chrome sends the audio to Google to turn it into text; nothing else leaves your phone.</p>
+      <h3>The voices</h3>
+      <p>Mr Luke, the RN and the model lines are <b>pre-recorded</b> with Kokoro, a neural text-to-speech voice, so they sound the same on every phone and work offline once played. Anything that isn’t recorded uses your phone’s own voice. You can switch to “Phone’s own” in the Live run set-up.</p>
       <h3>Can it see me?</h3>
       <p>No. It can’t see your hands or your readings. When you tap <b>Done</b>, it believes you, so be your own assessor.</p>
       <h3>Where the content comes from</h3>
       <p>Each step has a source chip; tap it to see the full reference. The model lines come from the course’s own demo videos where one exists.</p>
       <ul class="small">${srcs}</ul>
       <h3>For the admin (future you)</h3>
-      <p class="small muted">Content: <code>js/data.js</code> (rubric text verbatim, steps, curveballs, drugs). Engine: <code>js/app.js</code>; voice: <code>js/voice.js</code>; BP Lab: <code>js/bp.js</code>. Progress lives in this browser only, in localStorage keys starting <code>cls.</code> (log, drill, seen, settings). Checks: <code>node tests/check.mjs</code>. Demo transcripts: <code>D:\\lecture-recordings\\2026-10-08-cls\\</code>.</p>`;
+      <p class="small muted">Content: <code>js/data.js</code> (rubric text verbatim, steps, curveballs, drugs). Engine: <code>js/app.js</code>; voice: <code>js/voice.js</code>; BP Lab: <code>js/bp.js</code>. Progress lives in this browser only, in localStorage keys starting <code>cls.</code> (log, drill, seen, settings, rnq). Checks: <code>node tests/check.mjs</code> and <code>node tests/drive.mjs</code>. Voices: after any wording change run <code>node tools/voice-jobs.mjs</code> then <code>python tools/render_voices.py</code> (Kokoro, local); the check fails until every line has a clip. Demo transcripts: <code>D:\\lecture-recordings\\2026-10-08-cls\\</code>.</p>`;
   }
 
   /* ---------------- router ---------------- */
@@ -253,7 +256,7 @@
     let playing = false;
     $('#playAll').onclick = async () => {
       if (playing) { playing = false; V.stopSpeaking(); $('#playAll').textContent = '▶ Play the whole scene'; return; }
-      if (!V.ttsSupported) return toast('This browser can’t speak. Try Chrome.');
+      if (!V.ttsSupported && !V.clips) return toast('This browser can’t speak. Try Chrome.');
       playing = true; $('#playAll').textContent = '■ Stop';
       for (const s of S) {
         if (!playing) break;
@@ -360,7 +363,9 @@
       <div class="field"><label>How much is on screen</label>${segs('level', LEVELS.map(l => [l[0], l[1]]))}
         <p class="small muted" id="lvlNote"></p></div>
       <div class="field"><label>Curveballs (wrong wristband, an allergy, an expired pack…)</label>${segs('curve', [['off', 'Off'], ['some', 'Some'], ['lots', 'Lots']])}</div>
-      <label class="toggle"><input type="checkbox" id="optSpeak" ${settings.speak ? 'checked' : ''} ${V.ttsSupported ? '' : 'disabled'}> The app speaks the patient and RN lines</label>
+      <label class="toggle"><input type="checkbox" id="optSpeak" ${settings.speak ? 'checked' : ''} ${V.ttsSupported || V.clips ? '' : 'disabled'}> The app speaks the patient and RN lines</label>
+      <div class="field"><label>Voice</label>${segs('voice', [['natural', 'Natural (recorded)'], ['device', 'Phone’s own']])}
+        <p class="small muted">${V.clips ? 'Natural = lines pre-recorded with a neural voice (Kokoro). Anything not recorded falls back to your phone’s voice.' : 'The recorded voices didn’t load (offline on first visit?), so your phone’s voice is used.'}</p></div>
       <label class="toggle"><input type="checkbox" id="optListen" ${settings.listen && V.srSupported ? 'checked' : ''} ${V.srSupported ? '' : 'disabled'}> Listen to me and tick off my key words</label>
       ${V.srSupported ? '' : '<div class="card warn small"><b>Listening isn’t available in this browser.</b> Firefox can’t do speech recognition. Open this page in Chrome on your phone to use the mic. Here you’ll tap “Said it” instead.</div>'}
       <label class="toggle"><input type="checkbox" id="optAwake" ${settings.awake ? 'checked' : ''}> Keep the screen on during the run</label>
@@ -474,11 +479,11 @@
         btn('←', 'narrow', back);
         btn('🔁 Again', 'narrow', () => V.speak(speakable(s.line), s.kind));
         btn('Next', 'primary', () => complete('done'));
-        if (settings.speak && V.ttsSupported) {
+        if (settings.speak && (V.ttsSupported || V.clips)) {
           V.speak(speakable(s.line), s.kind).then(() => { if (cur() === s) advT = setTimeout(() => { if (cur() === s) complete('done'); }, 700); });
         }
       } else if (s.kind === 'cb') {
-        if (settings.speak && V.ttsSupported && s.line) V.speak(speakable(s.line), s.who === 'rn' ? 'rn' : 'pt');
+        if (settings.speak && (V.ttsSupported || V.clips) && s.line) V.speak(speakable(s.line), s.who === 'rn' ? 'rn' : 'pt');
         view.querySelectorAll('.stage .opt').forEach(b => b.onclick = () => {
           if (b.disabled) return;
           const ok = b.dataset.k === '0';
@@ -664,11 +669,11 @@
           view.querySelectorAll('.stage .opt').forEach(x => { x.disabled = true; if (x.dataset.k === '0') x.classList.add('right'); else if (x === b) x.classList.add('wrong'); });
           reveal(ok);
         });
-        if (settings.speak && V.ttsSupported) V.speak(speakable(q.q), 'rn');
+        if (settings.speak && (V.ttsSupported || V.clips)) V.speak(speakable(q.q), 'rn');
       } else {
         const sb = document.createElement('button'); sb.className = 'btn primary'; sb.textContent = 'Show answer'; sb.onclick = () => reveal(null); acts.appendChild(sb);
         const rb = document.createElement('button'); rb.className = 'btn narrow'; rb.textContent = '🔁'; rb.setAttribute('aria-label', 'Hear the question again'); rb.onclick = () => V.speak(speakable(q.q), 'rn'); acts.prepend(rb);
-        if (V.ttsSupported) V.speak(speakable(q.q), 'rn');
+        if (V.ttsSupported || V.clips) V.speak(speakable(q.q), 'rn');
       }
     }
     function reveal(ok) {

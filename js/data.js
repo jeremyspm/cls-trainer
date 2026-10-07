@@ -210,7 +210,7 @@
       lines: ['vs.a3'], src: ['rub-vs', 'Assessment and planning'] },
 
     // ---- temperature ----
-    { id: 'vs-temp', ph: 'Temperature', kind: 'do', t: 'Tympanic temperature',
+    { id: 'vs-temp', ph: 'Temperature', kind: 'do', t: 'Tympanic (ear) temperature',
       cue: 'New probe cover → gently pull the top of the ear up and back → probe in snugly → press → read → eject the cover into the bin.',
       lines: ['vs.i6', 'vs.i10'], src: ['rub-vs', 'temperature (using tympanic thermometer)'] },
     { id: 'vs-temp-doc', ph: 'Temperature', kind: 'do', t: 'Chart it now',

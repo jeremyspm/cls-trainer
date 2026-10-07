@@ -1,0 +1,945 @@
+{
+ "voices": {
+  "pt": {
+   "voice": "bm_george",
+   "lang": "en-gb",
+   "speed": 0.92
+  },
+  "rn": {
+   "voice": "af_heart",
+   "lang": "en-us",
+   "speed": 1
+  },
+  "you": {
+   "voice": "am_michael",
+   "lang": "en-us",
+   "speed": 1
+  }
+ },
+ "jobs": [
+  {
+   "key": "28kwt01ymdu",
+   "who": "you",
+   "text": "This is the adult vital signs chart for John Luke. His date of birth is here and his N H I is here. I’ll check those verbally with him and on his wristband. No one has taken his vital signs yet today, so I’ll be doing them now.",
+   "why": "vs-chart"
+  },
+  {
+   "key": "1ce2aqgy7cl",
+   "who": "you",
+   "text": "I’ll take his temperature first, then his pulse, then his respiratory rate, but I won’t tell him I’m doing that, because breathing changes if people know. Then his blood pressure last. I’ll document as I go and report the findings to you.",
+   "why": "vs-plan"
+  },
+  {
+   "key": "1mltu5zhicp",
+   "who": "you",
+   "text": "I’ll just make sure everything’s in working order. I’m going to use the larger cuff on Mr Luke, but I’ve got a medium one here as well.",
+   "why": "vs-equip"
+  },
+  {
+   "key": "1sb28wh5qjz",
+   "who": "you",
+   "text": "Hand hygiene",
+   "why": "vs-hh1"
+  },
+  {
+   "key": "g529p4lt0o",
+   "who": "you",
+   "text": "Good morning. How are you today?",
+   "why": "vs-greet"
+  },
+  {
+   "key": "whqoa0ef1p",
+   "who": "pt",
+   "text": "Oh, I’m doing okay. A little bit tired this morning.",
+   "why": "vs-greet-pt"
+  },
+  {
+   "key": "orvmyfax77",
+   "who": "you",
+   "text": "My name’s… I’m a second-year nursing student from M I T, and this is my preceptor… who I’m working with today.",
+   "why": "vs-intro"
+  },
+  {
+   "key": "ceib6t4uzl",
+   "who": "you",
+   "text": "Before we go any further, can I just make sure I’ve got the right chart and the right patient? Can you tell me your full name and date of birth, please?",
+   "why": "vs-id"
+  },
+  {
+   "key": "1ad17v8g14t",
+   "who": "pt",
+   "text": "John Luke. Sixteenth of December, 1942.",
+   "why": "vs-id-pt"
+  },
+  {
+   "key": "1cd2f0fvj09",
+   "who": "you",
+   "text": "Is it okay if I check your wristband as well? John Luke, 16th of December 1942, and N H I D G Y 2963. That matches the chart.",
+   "why": "vs-band"
+  },
+  {
+   "key": "lrnqhhf1i9",
+   "who": "you",
+   "text": "What would you like me to call you today?",
+   "why": "vs-name"
+  },
+  {
+   "key": "6hbsnd02pa",
+   "who": "pt",
+   "text": "Oh, John’s fine.",
+   "why": "vs-name-pt"
+  },
+  {
+   "key": "cixol84nsi",
+   "who": "you",
+   "text": "We’re going to do your vital signs. I’ll take your temperature with a thermometer that goes in your ear, so I’ll need to touch the top of your ear. I’ll take your pulse, so I’ll touch your wrist. Then your blood pressure: a cuff goes on your arm and gets pumped up. We do that twice. It’ll take about ten to twelve minutes. Any questions about that?",
+   "why": "vs-explain"
+  },
+  {
+   "key": "2cacfyrzbko",
+   "who": "you",
+   "text": "Are you happy for me to go ahead and do that now?",
+   "why": "vs-consent"
+  },
+  {
+   "key": "261m6hz0f83",
+   "who": "pt",
+   "text": "Yes, please.",
+   "why": "vs-consent-pt"
+  },
+  {
+   "key": "o6qwitscnp",
+   "who": "you",
+   "text": "Make the space safe",
+   "why": "vs-env"
+  },
+  {
+   "key": "187v1yoh80v",
+   "who": "you",
+   "text": "Tympanic (ear) temperature",
+   "why": "vs-temp"
+  },
+  {
+   "key": "4dfu6711ke",
+   "who": "you",
+   "text": "Chart it now",
+   "why": "vs-temp-doc"
+  },
+  {
+   "key": "ptutc9z0rk",
+   "who": "you",
+   "text": "Radial pulse: 30 seconds times 2",
+   "why": "vs-pulse"
+  },
+  {
+   "key": "c23qpo53ff",
+   "who": "you",
+   "text": "Respirations: keep your fingers on the wrist",
+   "why": "vs-resp"
+  },
+  {
+   "key": "24vld21qps5",
+   "who": "you",
+   "text": "Chart H R (X) and R R (the number in its box)",
+   "why": "vs-pr-doc"
+  },
+  {
+   "key": "ty2sjd4ubv",
+   "who": "you",
+   "text": "Position the arm",
+   "why": "bp-pos"
+  },
+  {
+   "key": "bapjvmxja9",
+   "who": "you",
+   "text": "I’m just going to measure to make sure you’ve got the right size cuff.",
+   "why": "bp-size"
+  },
+  {
+   "key": "104r8fd4jls",
+   "who": "you",
+   "text": "I’m just finding the brachial artery here. Keep your arm nice and straight for me.",
+   "why": "bp-feel"
+  },
+  {
+   "key": "19f11a9qiw3",
+   "who": "you",
+   "text": "Wrap the cuff",
+   "why": "bp-wrap"
+  },
+  {
+   "key": "xjerex5wu4",
+   "who": "you",
+   "text": "I’m just going to pump it up the first time, to get an estimate of what your blood pressure is.",
+   "why": "bp-s1"
+  },
+  {
+   "key": "240rtsl4fce",
+   "who": "you",
+   "text": "So I got about 110. That’s what we call an approximate systolic.",
+   "why": "bp-s1b"
+  },
+  {
+   "key": "kmdhe48snr",
+   "who": "you",
+   "text": "Deflate fully, then wait 30 seconds",
+   "why": "bp-wait"
+  },
+  {
+   "key": "100bhi536gp",
+   "who": "you",
+   "text": "STEP 2: stethoscope ON the brachial, BEFORE you pump",
+   "why": "bp-steth"
+  },
+  {
+   "key": "d595bc6iti",
+   "who": "you",
+   "text": "Now I’m going to pump it up to 30 above that, so up to 140.",
+   "why": "bp-s2"
+  },
+  {
+   "key": "1fa54d78ct0",
+   "who": "you",
+   "text": "Release 2 to 3 millimetres of mercury a second and listen",
+   "why": "bp-s2b"
+  },
+  {
+   "key": "221926kbmhg",
+   "who": "you",
+   "text": "That was 110 over 60. That’s normal, on the low side of normal. Do you know what your blood pressure usually is?",
+   "why": "bp-tell"
+  },
+  {
+   "key": "1pr6ag7upw5",
+   "who": "you",
+   "text": "Chart the B P",
+   "why": "bp-doc"
+  },
+  {
+   "key": "8mq1qs4g70",
+   "who": "you",
+   "text": "John, I’m just going to talk to my preceptor about your results here. Is that okay?",
+   "why": "vs-report-ask"
+  },
+  {
+   "key": "26ipq12tw2q",
+   "who": "rn",
+   "text": "Okay, just talk me through what you’ve done so far.",
+   "why": "vs-report-rn"
+  },
+  {
+   "key": "cw5qrhckvo",
+   "who": "you",
+   "text": "I put the date and the time in 24-hour time. His temperature was 36 point 9, within the normal range of 36 point 5 to 37 point 5. His pulse was 64; normal is 60 to 100. I counted for 30 seconds and doubled it. His respiratory rate was 12; normal is 12 to 20. His blood pressure was 110 over 60; normal systolic is 110 to 140 and diastolic 60 to 90, so he’s on the low side of normal.",
+   "why": "vs-report"
+  },
+  {
+   "key": "1h6q9453dm4",
+   "who": "rn",
+   "text": "What’s your responsibility as a student if any of those were outside the normal range, too high or too low?",
+   "why": "vs-rn-q"
+  },
+  {
+   "key": "227ha1545pj",
+   "who": "you",
+   "text": "I’d recheck it, and I’d always report it to you straight away if anything was outside the normal range.",
+   "why": "vs-rn-a"
+  },
+  {
+   "key": "1vkvxtf46h1",
+   "who": "you",
+   "text": "John, that concludes your vital signs for today. I’ll come back and check on you in about half an hour.",
+   "why": "vs-close"
+  },
+  {
+   "key": "2bttr1c99nd",
+   "who": "you",
+   "text": "If you need anything, here’s your call bell. Just give that a ring. Are you fine sitting up for now, or would you like to go back to bed? Your water’s here.",
+   "why": "vs-safe"
+  },
+  {
+   "key": "13kg5oceebm",
+   "who": "you",
+   "text": "Well, thank you very much, and we’ll see you in half an hour.",
+   "why": "vs-thanks"
+  },
+  {
+   "key": "s56itgbljw",
+   "who": "you",
+   "text": "Clean the equipment and put it back",
+   "why": "vs-clean"
+  },
+  {
+   "key": "1m1xixgysjb",
+   "who": "you",
+   "text": "Check the chart is complete",
+   "why": "vs-doccheck"
+  },
+  {
+   "key": "ie7ddz3efd",
+   "who": "pt",
+   "text": "Do you have to? I’m really tired. Can it wait?",
+   "why": "cb-vs-consent"
+  },
+  {
+   "key": "15ymo8moset",
+   "who": "you",
+   "text": "Can I wash my hands first?",
+   "why": "ma-hh1"
+  },
+  {
+   "key": "xcnonxlta6",
+   "who": "you",
+   "text": "This is the chart for John Luke, N H I D G Y 2963, date of birth 16th of December 1942. The sticker’s here and the prescriber has written his name and N H I by hand.",
+   "why": "ma-chart-id"
+  },
+  {
+   "key": "236wc5865fg",
+   "who": "you",
+   "text": "Allergies and adverse reactions: ticked no, signed and dated by the prescriber. I’ll still check with him at the bedside.",
+   "why": "ma-allergy-chart"
+  },
+  {
+   "key": "25tbbsfihxz",
+   "who": "you",
+   "text": "No special care boxes ticked and no supplementary charts.",
+   "why": "ma-special"
+  },
+  {
+   "key": "25ehbyu3v2v",
+   "who": "you",
+   "text": "On the regular page it’s dated and signed: Paracetamol 1 gram P O Q I D.",
+   "why": "ma-find"
+  },
+  {
+   "key": "23vhfugbxrj",
+   "who": "you",
+   "text": "It’s prescribed four times a day (Q I D). Looking at the administration record, the last dose was… so it’s due now.",
+   "why": "ma-time"
+  },
+  {
+   "key": "1m0vr58x4kz",
+   "who": "rn",
+   "text": "So can you tell me a little bit about this drug?",
+   "why": "ma-know-rn"
+  },
+  {
+   "key": "1oam4rg7bct",
+   "who": "you",
+   "text": "Paracetamol is a simple analgesic. He’s on it for his recurrent backache. Common adverse effects are very rare at the right dose: allergic rash, and liver damage if too much is taken. I’ll check it’s been at least 4 hours since his last dose and that he hasn’t had other paracetamol, because the max is 4 grams a day.",
+   "why": "ma-know"
+  },
+  {
+   "key": "1fgxlc9qldc",
+   "who": "you",
+   "text": "The label says paracetamol 500 milligrams tablets. It’s prescribed 1 gram, so that’s two 500 milligrams tablets.",
+   "why": "ma-select"
+  },
+  {
+   "key": "1ikeqycl4l1",
+   "who": "you",
+   "text": "It expires the end of July 2027, so it’s in date.",
+   "why": "ma-expiry"
+  },
+  {
+   "key": "9sptq068sv",
+   "who": "you",
+   "text": "I’m not touching the tablet, just popping it out into the cup. And a glass of water.",
+   "why": "ma-prep"
+  },
+  {
+   "key": "qpf55ob1qk",
+   "who": "you",
+   "text": "Knock, and hand hygiene on the way in",
+   "why": "ma-hh2"
+  },
+  {
+   "key": "1qcmqe44zlx",
+   "who": "you",
+   "text": "Good morning Mr Luke. My name’s… I’m a student nurse from M I T, and this is my preceptor… who I’m working with today. I’ve got your paracetamol, which is a new medicine for you, I believe.",
+   "why": "ma-greet"
+  },
+  {
+   "key": "1ehr0rnuoub",
+   "who": "you",
+   "text": "Can I just check I’ve got the right person? Can you tell me your full name and date of birth? And can I have a little look at your wristband?",
+   "why": "ma-id"
+  },
+  {
+   "key": "zpoepmfb47",
+   "who": "you",
+   "text": "Are you allergic to anything that you know of? And have you had a bad reaction to any medicines before?",
+   "why": "ma-allergy"
+  },
+  {
+   "key": "eunnfsq7n",
+   "who": "pt",
+   "text": "No, not that I know of.",
+   "why": "ma-allergy-pt"
+  },
+  {
+   "key": "3ae8s67fkk",
+   "who": "you",
+   "text": "Have you heard of paracetamol before? What do you know about it?",
+   "why": "ma-ask"
+  },
+  {
+   "key": "1iu4k5dc27l",
+   "who": "pt",
+   "text": "No, I don’t think so. The doctor just said it was a new one.",
+   "why": "ma-ask-pt"
+  },
+  {
+   "key": "9a7r8szwvv",
+   "who": "you",
+   "text": "This is paracetamol. It’s for the backache you’ve been getting. Most people get no side effects from paracetamol. If you get a rash, swelling, or trouble breathing, ring your bell straight away. The main thing is never to take more than you’re given, because too much can harm your liver.",
+   "why": "ma-build"
+  },
+  {
+   "key": "5thrk8o1v",
+   "who": "you",
+   "text": "I want to check I’ve been clear. Can you tell me, in your own words, what this tablet is for, and what you’d do if you got a rash or felt unwell?",
+   "why": "ma-check"
+  },
+  {
+   "key": "1dcr9gk2s4n",
+   "who": "pt",
+   "text": "It’s for my back pain, and if I get a rash or feel funny I ring the bell. And I don’t take any of my own Panadol.",
+   "why": "ma-check-pt"
+  },
+  {
+   "key": "252p4dddapo",
+   "who": "you",
+   "text": "Are you happy to take it? Have you got any questions?",
+   "why": "ma-consent"
+  },
+  {
+   "key": "tpsghq7w5r",
+   "who": "pt",
+   "text": "Sure, that was pretty clear. Thank you.",
+   "why": "ma-consent-pt"
+  },
+  {
+   "key": "2074og0nlq",
+   "who": "you",
+   "text": "Give it: sitting up, with water, watch it go down",
+   "why": "ma-give"
+  },
+  {
+   "key": "26abhejz9ua",
+   "who": "you",
+   "text": "It’s best to take it at the same time each day. And when you get down to about a week’s supply, ask your GP for a repeat, so you don’t run out.",
+   "why": "ma-routine"
+  },
+  {
+   "key": "13hwq1t5k5e",
+   "who": "you",
+   "text": "Here’s your call bell. If you want to get up in the next hour or so, give it a ring first so one of us can be with you. Thank you, Mr Luke.",
+   "why": "ma-safe"
+  },
+  {
+   "key": "2cooumbadx4",
+   "who": "you",
+   "text": "Sign it on the chart: date, time, dose, Give and Check",
+   "why": "ma-doc"
+  },
+  {
+   "key": "ux4jagrtrf",
+   "who": "rn",
+   "text": "Can you describe to me how you used the three steps of patient education just now?",
+   "why": "ma-abc-rn"
+  },
+  {
+   "key": "1uj9dk7yr5v",
+   "who": "you",
+   "text": "First I ASKED what he already knew about paracetamol. Then I BUILT on that: I explained what it’s for and the side effects in plain words. Then I CHECKED he understood by asking him to tell me back in his own words.",
+   "why": "ma-abc"
+  },
+  {
+   "key": "9q2724pf27",
+   "who": "you",
+   "text": "Thank you.",
+   "why": "ma-thanks"
+  },
+  {
+   "key": "1p49ry3obvf",
+   "who": "pt",
+   "text": "Panadol? Oh, I came out in a nasty rash after Panadol once.",
+   "why": "cb-ma-allergy"
+  },
+  {
+   "key": "bar0lbwert",
+   "who": "pt",
+   "text": "Actually, I don’t want any more pills today.",
+   "why": "cb-ma-refuse"
+  },
+  {
+   "key": "u68jngzdyi",
+   "who": "pt",
+   "text": "Oh, I took a couple of my own Panadol this morning for my back.",
+   "why": "cb-ma-para-otc"
+  },
+  {
+   "key": "vzfx8h1irs",
+   "who": "rn",
+   "text": "Is there another way you could explain that to him, without the medical words?",
+   "why": "cb-ma-jargon"
+  },
+  {
+   "key": "24ca6ba75by",
+   "who": "you",
+   "text": "On the regular page it’s dated and signed: Metoprolol suxinate C R 47 point 5 milligrams P O daily.",
+   "why": "ma-find"
+  },
+  {
+   "key": "1dks24lfnwv",
+   "who": "you",
+   "text": "It’s prescribed once daily. Looking at the administration record, the last dose was… so it’s due now.",
+   "why": "ma-time"
+  },
+  {
+   "key": "2egomnkwwt7",
+   "who": "you",
+   "text": "Metoprolol suxinate is a beta-adreno-ceptor blocker. He’s on it for his high blood pressure and his heart failure. Common adverse effects are tiredness, bradycardia, dizziness especially on standing, and cold hands and feet. I’ll check his pulse and blood pressure first, and he’s a falls risk because of the dizziness.",
+   "why": "ma-know"
+  },
+  {
+   "key": "hlaqyxhq1b",
+   "who": "you",
+   "text": "The label says metoprolol suxinate C R 47 point 5 milligrams. It’s prescribed 47 point 5 milligrams, so that’s one 47 point 5 milligrams C R tablet.",
+   "why": "ma-select"
+  },
+  {
+   "key": "gt8lqidrpf",
+   "who": "you",
+   "text": "Good morning Mr Luke. My name’s… I’m a student nurse from M I T, and this is my preceptor… who I’m working with today. I’ve got your metoprolol suxinate, which is a new medicine for you, I believe.",
+   "why": "ma-greet"
+  },
+  {
+   "key": "2ckq9zbm60n",
+   "who": "you",
+   "text": "Have you heard of metoprolol suxinate before? What do you know about it?",
+   "why": "ma-ask"
+  },
+  {
+   "key": "2a7tz2y2cey",
+   "who": "you",
+   "text": "This is metoprolol suxinate. It’s to bring your blood pressure down and take some of the strain off your heart. It can make you feel tired, a bit dizzy when you stand up, or give you cold hands and feet. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.",
+   "why": "ma-build"
+  },
+  {
+   "key": "2c6l1b9zrei",
+   "who": "you",
+   "text": "I want to check I’ve been clear. Can you tell me, in your own words, what this tablet is for, and what you’d do if you felt dizzy?",
+   "why": "ma-check"
+  },
+  {
+   "key": "1y15m20vmzq",
+   "who": "pt",
+   "text": "It’s for my blood pressure and my heart, and if I feel dizzy I ring the bell before I get up.",
+   "why": "ma-check-pt"
+  },
+  {
+   "key": "q3yoi79wre",
+   "who": "you",
+   "text": "First I ASKED what he already knew about metoprolol suxinate. Then I BUILT on that: I explained what it’s for and the side effects in plain words. Then I CHECKED he understood by asking him to tell me back in his own words.",
+   "why": "ma-abc"
+  },
+  {
+   "key": "1mpo16sswik",
+   "who": "pt",
+   "text": "Metoprolol? I was on a beta blocker years ago and I came out in hives.",
+   "why": "cb-ma-allergy"
+  },
+  {
+   "key": "25z86c8vecv",
+   "who": "rn",
+   "text": "His obs this morning: pulse 52, B P 96 over 58.",
+   "why": "cb-ma-meto-low"
+  },
+  {
+   "key": "24vepnwwv30",
+   "who": "pt",
+   "text": "I struggle with big tablets. Can you crush it up for me?",
+   "why": "cb-ma-meto-crush"
+  },
+  {
+   "key": "29awypdo7c3",
+   "who": "rn",
+   "text": "What’s the normal adult temperature range?",
+   "why": "r-temp"
+  },
+  {
+   "key": "fo27xy722x",
+   "who": "rn",
+   "text": "What’s a normal adult heart rate?",
+   "why": "r-hr"
+  },
+  {
+   "key": "7v7og9tgu9",
+   "who": "rn",
+   "text": "What’s a normal adult respiratory rate?",
+   "why": "r-rr"
+  },
+  {
+   "key": "ynhvfqx2o3",
+   "who": "rn",
+   "text": "What are the normal systolic and diastolic ranges?",
+   "why": "r-bp"
+  },
+  {
+   "key": "djrp7341q3",
+   "who": "rn",
+   "text": "What’s a normal adult oxygen saturation?",
+   "why": "r-spo2"
+  },
+  {
+   "key": "ohqqju5tve",
+   "who": "rn",
+   "text": "What do bradycardia and tachycardia mean, in numbers?",
+   "why": "r-brady"
+  },
+  {
+   "key": "1w74vpc8x38",
+   "who": "rn",
+   "text": "An adult has a regular respiratory rate of 32. What’s the term?",
+   "why": "r-rr32"
+  },
+  {
+   "key": "1eyzmnri8oc",
+   "who": "rn",
+   "text": "What counts as a low-grade fever, and as pyrexia?",
+   "why": "r-pyrexia"
+  },
+  {
+   "key": "2dydp0k5ljk",
+   "who": "rn",
+   "text": "What temperature is hypothermia?",
+   "why": "r-hypo"
+  },
+  {
+   "key": "263i8cstyq3",
+   "who": "rn",
+   "text": "How long do you count the pulse and respirations for?",
+   "why": "t-count"
+  },
+  {
+   "key": "kfh3rk45xx",
+   "who": "rn",
+   "text": "Why don’t you tell him you’re counting his breathing?",
+   "why": "t-resp"
+  },
+  {
+   "key": "1d5zem96n7b",
+   "who": "rn",
+   "text": "Talk me through the tympanic temperature.",
+   "why": "t-tymp"
+  },
+  {
+   "key": "1u0dr7smlge",
+   "who": "rn",
+   "text": "When do we take vital signs?",
+   "why": "t-when"
+  },
+  {
+   "key": "w8d4scjf8j",
+   "who": "rn",
+   "text": "Why do you do the palpation step first?",
+   "why": "b-why"
+  },
+  {
+   "key": "l4vrezlk7b",
+   "who": "rn",
+   "text": "In step 2, how high do you pump the cuff?",
+   "why": "b-high"
+  },
+  {
+   "key": "1gk6q54uij2",
+   "who": "rn",
+   "text": "What do you do between step 1 and step 2?",
+   "why": "b-wait"
+  },
+  {
+   "key": "16t8sr14t5l",
+   "who": "rn",
+   "text": "How fast do you let the cuff down?",
+   "why": "b-rate"
+  },
+  {
+   "key": "1hajjufqvy3",
+   "who": "rn",
+   "text": "Which sound is the systolic, and which is the diastolic?",
+   "why": "b-sounds"
+  },
+  {
+   "key": "14fiu8051dn",
+   "who": "rn",
+   "text": "What are the sounds you hear called?",
+   "why": "b-name"
+  },
+  {
+   "key": "imiw16pqpf",
+   "who": "rn",
+   "text": "In step 2, when does the stethoscope go on?",
+   "why": "b-steth"
+  },
+  {
+   "key": "1m7ofetli2p",
+   "who": "rn",
+   "text": "What happens if the cuff is too small?",
+   "why": "b-small"
+  },
+  {
+   "key": "1gc0rre36vt",
+   "who": "rn",
+   "text": "How should his arm and body be positioned?",
+   "why": "b-arm"
+  },
+  {
+   "key": "cwudi36yfz",
+   "who": "rn",
+   "text": "You can’t hear anything. What do you do?",
+   "why": "b-nosound"
+  },
+  {
+   "key": "1qtbnb5y4u9",
+   "who": "rn",
+   "text": "How do you chart temperature, heart rate, resps and B P?",
+   "why": "d-how"
+  },
+  {
+   "key": "2fgsrz34xg9",
+   "who": "rn",
+   "text": "What are the rules for documenting vital signs?",
+   "why": "d-rules"
+  },
+  {
+   "key": "pahtvfi531",
+   "who": "rn",
+   "text": "What’s your responsibility if any observation is outside the normal range?",
+   "why": "d-abn"
+  },
+  {
+   "key": "23pwypb2v8w",
+   "who": "rn",
+   "text": "What’s the early warning score for?",
+   "why": "d-ews"
+  },
+  {
+   "key": "1w6mylaffyj",
+   "who": "rn",
+   "text": "Which blood pressure value scores on the E W S?",
+   "why": "d-ewsbp"
+  },
+  {
+   "key": "15vc5b2zbg1",
+   "who": "rn",
+   "text": "What does A, I, 2, D, E, T stand for?",
+   "why": "c-ai2det"
+  },
+  {
+   "key": "1tlqjvj3gk3",
+   "who": "rn",
+   "text": "How do you show culturally safe practice in this assessment?",
+   "why": "c-culture"
+  },
+  {
+   "key": "2an3w8i4j9d",
+   "who": "rn",
+   "text": "What are the 8 rights and the 2 checks?",
+   "why": "m-rights"
+  },
+  {
+   "key": "xy3c2i7g3g",
+   "who": "rn",
+   "text": "How do you confirm the right patient?",
+   "why": "m-id"
+  },
+  {
+   "key": "1mhl2wfmcxd",
+   "who": "rn",
+   "text": "How many times do you check the medicine against the chart, and when?",
+   "why": "m-3checks"
+  },
+  {
+   "key": "1szwwelcmep",
+   "who": "rn",
+   "text": "The pack says E X P 07/2027. What does that mean?",
+   "why": "m-expiry"
+  },
+  {
+   "key": "1tqfoy54nb5",
+   "who": "rn",
+   "text": "The pharmacist repackaged it and there’s only a dispensing date. How long is it good for?",
+   "why": "m-repack"
+  },
+  {
+   "key": "287568ay9aq",
+   "who": "rn",
+   "text": "The chart says no allergies. Why ask him anyway?",
+   "why": "m-allergy"
+  },
+  {
+   "key": "1zxon73g56r",
+   "who": "rn",
+   "text": "What does NKDA mean?",
+   "why": "m-nkda"
+  },
+  {
+   "key": "21k4sonsu34",
+   "who": "rn",
+   "text": "What do you do if he refuses?",
+   "why": "m-refuse"
+  },
+  {
+   "key": "14akup6x4ij",
+   "who": "rn",
+   "text": "The order has no route written. What do you do?",
+   "why": "m-route"
+  },
+  {
+   "key": "3qc93ivs8h",
+   "who": "rn",
+   "text": "How close to the scheduled time must a regular medicine be given?",
+   "why": "m-30"
+  },
+  {
+   "key": "2djtqdfias0",
+   "who": "rn",
+   "text": "What does Q I D mean, and what times does the chart suggest?",
+   "why": "m-qid"
+  },
+  {
+   "key": "1cbi3stbw2l",
+   "who": "rn",
+   "text": "What exactly do you write on the chart, and when?",
+   "why": "m-doc"
+  },
+  {
+   "key": "2bk16zmj6eq",
+   "who": "rn",
+   "text": "Can you sign for it before you give it, to save time?",
+   "why": "m-before"
+  },
+  {
+   "key": "11b7jysd355",
+   "who": "rn",
+   "text": "On the N M C, what do the codes R and W mean?",
+   "why": "m-codes"
+  },
+  {
+   "key": "29uc08tx9h",
+   "who": "rn",
+   "text": "What are the three steps to meeting health literacy needs?",
+   "why": "e-abc"
+  },
+  {
+   "key": "1wpulhb4hiw",
+   "who": "rn",
+   "text": "Give me an example of an ASK question.",
+   "why": "e-ask"
+  },
+  {
+   "key": "2ftq12wnl44",
+   "who": "rn",
+   "text": "What goes into BUILD?",
+   "why": "e-build"
+  },
+  {
+   "key": "zm58lnywlf",
+   "who": "rn",
+   "text": "How do you CHECK, and what don’t you say?",
+   "why": "e-check"
+  },
+  {
+   "key": "bq3mg1iiwm",
+   "who": "rn",
+   "text": "He can’t explain it back. Now what?",
+   "why": "e-fail"
+  },
+  {
+   "key": "1kz68atyxo0",
+   "who": "rn",
+   "text": "Describe to me how you used Ask, Build, Check just now.",
+   "why": "e-describe"
+  },
+  {
+   "key": "7ksnpxyevi",
+   "who": "rn",
+   "text": "The pack says Pacimol. What’s the generic name, and what class is it?",
+   "why": "p-name"
+  },
+  {
+   "key": "23xv5casx3o",
+   "who": "rn",
+   "text": "Why is Mr Luke on paracetamol?",
+   "why": "p-ind"
+  },
+  {
+   "key": "1jqgk9a5x3r",
+   "who": "rn",
+   "text": "What are the adverse effects of paracetamol?",
+   "why": "p-ae"
+  },
+  {
+   "key": "1k2hbytr3n4",
+   "who": "rn",
+   "text": "What’s the maximum dose, and the minimum gap between doses?",
+   "why": "p-max"
+  },
+  {
+   "key": "pkhhixo3ha",
+   "who": "rn",
+   "text": "What do you ask him before giving it?",
+   "why": "p-ask"
+  },
+  {
+   "key": "19zh78cdxuv",
+   "who": "rn",
+   "text": "You have 500 milligrams tablets and the order is 1 gram. How many?",
+   "why": "p-dose"
+  },
+  {
+   "key": "xkmsezt4oo",
+   "who": "rn",
+   "text": "The pack says Betaloc C R. What’s the generic name, and what class is it?",
+   "why": "o-name"
+  },
+  {
+   "key": "i08cdok6u2",
+   "who": "rn",
+   "text": "Why is Mr Luke on metoprolol?",
+   "why": "o-ind"
+  },
+  {
+   "key": "wevpy4xsyl",
+   "who": "rn",
+   "text": "What are the common adverse effects of metoprolol?",
+   "why": "o-ae"
+  },
+  {
+   "key": "14ltor8zvah",
+   "who": "rn",
+   "text": "What do you check before giving it?",
+   "why": "o-check"
+  },
+  {
+   "key": "vtx6hf2d9h",
+   "who": "rn",
+   "text": "He struggles with tablets. Can you crush it?",
+   "why": "o-crush"
+  },
+  {
+   "key": "14fpym8ukxj",
+   "who": "rn",
+   "text": "What do you tell him about stopping it?",
+   "why": "o-stop"
+  },
+  {
+   "key": "bxs71oqobz",
+   "who": "rn",
+   "text": "What safety advice goes with it?",
+   "why": "o-falls"
+  }
+ ]
+}

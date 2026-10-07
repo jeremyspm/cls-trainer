@@ -122,5 +122,13 @@ for (const m of new Set([...css.matchAll(/var\((--[\w-]+)/g)].map(m => m[1]))) o
 // house rule: --acc is a FILL, never text colour
 ok(!/(^|[^-\w])color:\s*var\(--acc\)/m.test(css), 'color:var(--acc) used as text (use --acc-tx)'); // accent-color is a fill: allowed
 
+// 5. every line the app can speak has a recorded clip (tools/voice-jobs.mjs --check)
+{
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [path.join(root, 'tools', 'voice-jobs.mjs'), '--check'], { encoding: 'utf8' });
+  process.stdout.write(r.stdout);
+  ok(r.status === 0, 'voice clips are missing or stale (see above)');
+}
+
 console.log(`${checks} checks, ${fails} failed`);
 process.exit(fails ? 1 : 0);

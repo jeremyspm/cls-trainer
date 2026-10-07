@@ -47,11 +47,53 @@
   const TONE = { pt: { pitch: 0.85, rate: 0.92 }, rn: { pitch: 1.08, rate: 1.0 }, you: { pitch: 1.0, rate: 1.0 } };
   let speaking = 0;
 
-  V.speak = function (text, who) {
+  /* Text → what a voice should actually say. Used for BOTH the recorded clips (tools/voice-jobs.mjs runs this
+     same function, so the clip keys match) and the device voice. Must stay idempotent. */
+  V.speakable = function (s) {
+    return String(s || '')
+      .replace(/[“”"]/g, '')
+      .replace(/\s*_{2,}\s*[,.]?/g, '… ')   // "My name’s ___." → a pause where you'd say your own name
+      .replace(/\b(NHI|DGY|RN|BP|MIT|CR|EWS|NMC|HR|RR|PO|ID|CLS|EXP)\b/g, m => m.split('').join(' '))
+      .replace(/\bAI2DET\b/g, 'A, I, 2, D, E, T')
+      // Kokoro respellings, each picked by rendering candidates and transcribing them back with Whisper (8 Oct 2026)
+      .replace(/\bsuccinate\b/gi, 'suxinate')
+      .replace(/adrenoceptor/gi, 'adreno-ceptor')
+      .replace(/(\d)\.(\d)/g, '$1 point $2')          // "47.5" was read "47. Five"
+      .replace(/\bqid\b/g, 'Q I D')
+      .replace(/\bGiv\/Chck\b/g, 'Give and Check')
+      .replace(/(\d)\s?mmHg\b/g, '$1 millimetres of mercury').replace(/\bmmHg\b/g, 'millimetres of mercury')
+      .replace(/(\d)\s?°C\b/g, '$1 degrees').replace(/°C/g, 'degrees')
+      .replace(/\b(\d+(?:\.\d+)?)\s?mg\b/g, '$1 milligrams')
+      .replace(/\b1\s?g\b/g, '1 gram').replace(/\b(\d+(?:\.\d+)?)\s?g\b/g, '$1 grams')
+      .replace(/\bbpm\b/g, 'beats per minute')
+      .replace(/(\d)\s?[–-]\s?(\d)/g, '$1 to $2')
+      .replace(/\s?×\s?/g, ' times ').replace(/\s?→\s?/g, ', then ')
+      .replace(/\s{2,}/g, ' ').trim();
+  };
+  // cyrb53: a small stable string hash (same in node and the browser) → the clip's file name
+  V.key = function (who, text) {
+    const str = who + '|' + V.speakable(text);
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  };
+
+  /* Recorded voices: audio/manifest.json = { voices:{pt,rn,you}, clips:{ key: file } }, rendered offline with Kokoro. */
+  V.mode = 'natural';          // 'natural' (recorded clips, device voice as fallback) | 'device'
+  V.clips = null;
+  V.stats = { clip: 0, device: 0 };
+  V.ready = (typeof fetch === 'function' && typeof document !== 'undefined')
+    ? fetch('audio/manifest.json').then(r => r.ok ? r.json() : null).then(m => { V.clips = m && m.clips ? m.clips : null; V.clipVoices = m && m.voices; return !!V.clips; }).catch(() => false)
+    : Promise.resolve(false);
+  let audio = null;
+
+  function speakDevice(text, who) {
     return new Promise(resolve => {
       if (!synth || !text) return resolve(false);
       if (!voices.length) loadVoices();
-      const u = new SpeechSynthesisUtterance(text.replace(/[“”"]/g, ''));
+      const u = new SpeechSynthesisUtterance(text);
       const t = TONE[who] || TONE.you;
       u.pitch = t.pitch; u.rate = t.rate * V.rateScale;
       const v = pick[who] || pick.you;
@@ -63,10 +105,37 @@
       u.onend = finish; u.onerror = finish;
       // Chrome on Android sometimes never fires onend; a length-based timeout guarantees progress.
       setTimeout(finish, 2500 + text.length * 95 / (u.rate || 1));
+      V.stats.device++;
       synth.speak(u);
     });
+  }
+  function speakClip(file, text, who) {
+    return new Promise(resolve => {
+      const a = new Audio('audio/' + file);
+      a.playbackRate = V.rateScale;
+      audio = a;
+      speaking++;
+      pauseForSpeech();
+      let done = false;
+      const finish = ok => { if (done) return; done = true; if (audio === a) audio = null; speaking = Math.max(0, speaking - 1); setTimeout(resumeAfterSpeech, 200); resolve(ok); };
+      a.onended = () => finish(true);
+      a.onerror = () => { finish(false); speakDevice(text, who); };          // missing file → device voice
+      V.stats.clip++;
+      a.play().catch(() => { finish(false); speakDevice(text, who); });      // autoplay refused → device voice
+    });
+  }
+  V.hasClip = (text, who) => !!(V.clips && V.clips[V.key(who, text)]);
+  V.speak = function (text, who) {
+    if (!text) return Promise.resolve(false);
+    const said = V.speakable(text);
+    const file = V.mode === 'natural' && V.clips ? V.clips[V.key(who || 'you', text)] : null;
+    return file ? speakClip(file, said, who) : speakDevice(said, who);
   };
-  V.stopSpeaking = function () { if (synth) synth.cancel(); speaking = 0; resumeAfterSpeech(); };
+  V.stopSpeaking = function () {
+    if (synth) synth.cancel();
+    if (audio) { try { audio.pause(); } catch (e) { } audio = null; }
+    speaking = 0; resumeAfterSpeech();
+  };
   V.isSpeaking = () => speaking > 0;
 
   /* ---------- listening ---------- */

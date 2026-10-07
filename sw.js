@@ -1,5 +1,5 @@
 /* Offline: cache the app shell; network-first for HTML so updates land, cache-first for the rest. Bump VERSION on every deploy. */
-const VERSION = 'cls-v2';
+const VERSION = 'cls-v3';
 const SHELL = ['./', 'index.html', 'css/app.css', 'js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/app.js', 'icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
@@ -8,7 +8,8 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
-  const html = req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html');
+  // network-first for pages and JSON (the voice manifest changes whenever lines are re-recorded); cache-first for the rest (incl. clips)
+  const html = req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html') || new URL(req.url).pathname.endsWith('.json');
   if (html) {
     e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(VERSION).then(x => x.put(req, c)); return r; }).catch(() => caches.match(req).then(r => r || caches.match('index.html'))));
   } else {
