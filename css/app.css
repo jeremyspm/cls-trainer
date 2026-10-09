@@ -221,30 +221,33 @@ input[type=text],input[type=number],input[type=date],select{font-size:16px;width
 .checklist li{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14.5px}
 .checklist li i{font-style:normal;width:20px;flex:0 0 20px;text-align:center}
 
-/* Chart it: one column of the vital signs chart */
-.vchart{border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:10px 0;background:var(--card)}
-.vc-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--card2);border-bottom:1px solid var(--line2)}
-.vc-h span{font-size:12.5px;color:var(--tx2);font-style:italic}
-.vc-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;align-items:stretch;width:100%;min-height:34px;border-top:1px solid var(--line);padding:0;text-align:left;font-size:14px}
-.vc-row:first-of-type{border-top:none}
-.vc-row:disabled{opacity:1;cursor:default}
-.vc-l{padding:7px 12px;font-variant-numeric:tabular-nums}
-.vc-c{border-left:1px dashed var(--line2);display:flex;align-items:center;justify-content:center;gap:4px;font-weight:800}
-.vc-row.z-w{background:var(--z-w)} .vc-row.z-y{background:var(--z-y)} .vc-row.z-o{background:var(--z-o)} .vc-row.z-p{background:var(--z-p)} .vc-row.z-b{background:var(--z-b)}
-.vc-row:not(:disabled):hover .vc-c{background:var(--acc-soft)}
-.vc-row.right{box-shadow:inset 0 0 0 2px var(--good)}
-.vc-row.wrong{box-shadow:inset 0 0 0 2px var(--bad)}
-.mk{font-size:17px;line-height:1;color:var(--tx)}
-.mk.arrow{font-size:20px;color:var(--acc-tx)}
-.mk.dots{color:var(--tx2)}
+/* Chart it: the NZ adult vital signs chart, drawn as SVG (chart-vs.js) */
+.chartbox{border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:10px 0;background:var(--card)}
+.chartbox.narrow{width:200px;max-width:100%}   /* one column at its natural size: 182 viewBox units */
+.vchart2{display:block;width:100%;height:auto;cursor:crosshair;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.vchart2 text{dominant-baseline:central;font-family:inherit}
+.vchart2 .ch-lab{text-anchor:end;font-size:11px;fill:var(--tx);font-variant-numeric:tabular-nums}
+.vchart2 .ch-title{font-size:11.5px;font-weight:700;fill:var(--tx)}
+.vchart2 .ch-time{text-anchor:middle;font-size:12px;font-weight:700;fill:var(--tx)}
+.vchart2 .ch-head{fill:var(--card2)}
+.vchart2 .ch-row{stroke:var(--line);stroke-width:.6}
+.vchart2 .zf-w{fill:var(--z-w)} .vchart2 .zf-y{fill:var(--z-y)} .vchart2 .zf-o{fill:var(--z-o)} .vchart2 .zf-p{fill:var(--z-p)} .vchart2 .zf-b{fill:var(--z-b)}
+.vchart2 .ch-mid{stroke:var(--line2);stroke-width:.8;stroke-dasharray:1.5 3}
+.vchart2 .ch-col{stroke:var(--line2);stroke-width:.8;stroke-dasharray:3 3}
+.vchart2 .ch-cur{fill:var(--acc-soft);pointer-events:none}
+.vchart2 .ch-active{fill:none;stroke:var(--acc);stroke-width:2;pointer-events:none}
+.vchart2 .ch-mk{text-anchor:middle;font-size:15px;font-weight:800;fill:var(--tx)}
+.vchart2 .ch-mk.num{font-size:13px}
+.vchart2 .ch-old .ch-mk,.vchart2 .ch-old .ch-arrow{fill:var(--tx2)}
+.vchart2 .ch-old .ch-dots{stroke:var(--tx2)}
+.vchart2 .ch-arrow{fill:var(--tx)}
+.vchart2 .ch-dots{stroke:var(--tx);stroke-width:1.4;stroke-dasharray:2 3}
+.vchart2 .ch-you .ch-mk,.vchart2 .ch-you .ch-arrow{fill:var(--acc-tx)}
+.vchart2 .ch-you .ch-dots{stroke:var(--acc-tx)}
+.vchart2 .ch-ghost .ch-mk,.vchart2 .ch-ghost .ch-arrow{fill:var(--good);opacity:.9}
+.taskbar{position:sticky;bottom:0;z-index:4;background:var(--bg);border-top:1px solid var(--line2);padding:8px 0 calc(8px + env(safe-area-inset-bottom));max-height:52vh;overflow:auto}
+.taskbar .q{margin-top:6px}
 .chip.pickc.ok{color:var(--acc-tx);background:var(--acc-soft);border-color:var(--acc)}
-/* Sign the med chart */
-.nmc{border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:10px 0;background:var(--card)}
-.nmc-h{padding:8px 12px;background:color-mix(in srgb,var(--pt) 16%,transparent);font-weight:700;font-size:14px}
-.nmc-rx{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:1px;background:var(--line)}
-.nmc-rx span{background:var(--card);padding:8px 12px;font-weight:600;font-size:14.5px}
-.nmc-rx i{display:block;font-style:normal;font-weight:400;font-size:11.5px;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em}
-
 @media (min-width:640px){
   .wrap{padding-top:16px}
   .top h1{font-size:20px}

@@ -10,7 +10,7 @@ let fails = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { fails++; console.log('FAIL ' + msg); } };
 
 // 1. every script parses as a classic script
-for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/chart.js', 'js/app.js', 'sw.js']) {
+for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/chart-vs.js', 'js/chart.js', 'js/app.js', 'sw.js']) {
   try { new vm.Script(read(f), { filename: f }); ok(true); } catch (e) { ok(false, `${f} does not parse: ${e.message}`); }
 }
 
@@ -105,9 +105,10 @@ ok(rnqLongest <= Math.ceil(0.4 * RNQ.length), `RN questions: right option is the
 console.log(`RN questions: ${RNQ.length}; right option longest in ${rnqLongest}`);
 
 // the vital signs chart: every plausible value lands in exactly ONE row; zones are known; scenarios always plot
+vm.runInContext(read('js/chart-vs.js'), sandbox);
 vm.runInContext(read('js/chart.js'), sandbox);
 const CH = sandbox.window.CLS_CHART;
-for (const [sec, lo, hi, step] of [['temp', 33, 41, 0.1], ['hr', 30, 160, 1], ['rr', 0, 45, 1], ['bp', 50, 240, 1]]) {
+for (const [sec, lo, hi, step] of [['temp', 33, 41, 0.1], ['hr', 30, 160, 1], ['rr', 0, 45, 1], ['bp', 50, 240, 1], ['spo2', 80, 100, 1]]) {
   for (let v = lo; v <= hi + 1e-9; v = Math.round((v + step) * 10) / 10) {
     const hits = D.CHART[sec].rows.filter(r => v >= r[1] && v <= r[2]).length;
     if (hits !== 1) { ok(false, `chart ${sec}: value ${v} lands in ${hits} rows`); break; }
@@ -119,7 +120,43 @@ for (let i = 0; i < 2000; i++) {
   const bad = [['temp', o.temp], ['hr', o.hr], ['rr', o.rr], ['bp', o.sys], ['bp', o.dia]].find(([s, v]) => CH.rowFor(D.CHART[s], v) < 0);
   if (bad || !/^\d{4}$/.test(o.time24) || !/^\d{1,2}:\d{2} (am|pm)$/.test(o.time12)) { ok(false, `chart scenario can't be plotted: ${JSON.stringify(o)}`); break; }
 }
-ok(D.NMC.rn.initials === 'JC' && D.NMC.doses.para && D.NMC.doses.meto, 'NMC data incomplete');
+// Chart it v2: where a value is drawn must read back as that value; row lines sit exactly on the round numbers
+{
+  const L = CH.layout(D.CHART, D.CHART.order);
+  ok(D.CHART.order.every(k => D.CHART[k]), 'CHART.order names an unknown section');
+  for (const [key, lo, hi, step] of [['temp', 34, 39.9, 0.1], ['hr', 30, 139, 1], ['bp', 50, 219, 1]]) {
+    for (let v = lo; v <= hi + 1e-9; v = Math.round((v + step) * 10) / 10) {
+      const p = CH.place(D.CHART, L, key, v);
+      if (!p || p.write) { ok(false, `chart ${key} ${v}: not plottable`); break; }
+      const back = CH.valueAt(D.CHART, L, key, Math.min(p.y, L[key].rowsTop + L[key].n * CH.RH - 1e-6));
+      // a value ON a line is drawn on the row's bottom edge: reading back just inside the row gives the same value
+      if (!back || Math.abs(back.v - v) > 1e-6) { ok(false, `chart ${key} ${v}: drawn at y=${p.y.toFixed(2)} reads back ${back && back.v}`); break; }
+    }
+  }
+  const at = (key, v) => CH.place(D.CHART, L, key, v).y;
+  const rowTop = (key, label) => L[key].rowsTop + D.CHART[key].rows.findIndex(r => r[0] === label) * CH.RH;
+  ok(Math.abs(at('bp', 110) - rowTop('bp', '100s')) < 1e-9, 'chart: BP 110 is not ON the line between the 110s and 100s rows');
+  ok(Math.abs(at('bp', 60) - rowTop('bp', '50s')) < 1e-9, 'chart: BP 60 is not ON the line between the 60s and 50s rows');
+  ok(Math.abs(at('temp', 37) - rowTop('temp', '36s')) < 1e-9, 'chart: 37.0 is not ON the line between the 37s and 36s rows');
+  ok(CH.place(D.CHART, L, 'hr', 146).write && CH.place(D.CHART, L, 'bp', 224).write && CH.place(D.CHART, L, 'temp', 40.2).write, 'chart: off-scale values must be written, not marked');
+  // EWS tiers land where the pathway on the chart says
+  const base = { temp: 36.8, hr: 76, rr: 16, sys: 124, dia: 74, spo2: 98, o2: 'ra', loc: 'A' };
+  const tier = o => CH.ews(D.CHART, Object.assign({}, base, o));
+  ok(tier({}).total === 0 && tier({}).tier === 't0', 'EWS: a normal set must score 0 / routine');
+  ok(tier({ temp: 38.3 }).total === 1 && tier({ temp: 38.3 }).tier === 't1', 'EWS: temp 38.3 must score 1 (t1)');
+  ok(tier({ hr: 132 }).tier === 't3', 'EWS: HR in the 130s (pink) must trigger t3');
+  ok(tier({ hr: 146 }).tier === 't4', 'EWS: HR 140+ (blue) must trigger t4');
+  ok(tier({ temp: 39.2, hr: 112, rr: 22, spo2: 95 }).total === 7 && tier({ temp: 39.2, hr: 112, rr: 22, spo2: 95 }).tier === 't2', 'EWS: 2+2+2+1 = 7 must be t2');
+  ok(D.CHART.pathway.length === 5 && D.SRC[D.CHART.pathwaySrc[0]], 'EWS pathway incomplete');
+  for (let i = 0; i < 2000; i++) {
+    const sc = CH.makeScenario();
+    const all = [sc.cur].concat(sc.prev);
+    const bad = all.find(o => ['temp', 'hr', 'rr', 'spo2'].some(k => CH.rowFor(D.CHART[k], o[k]) < 0) || CH.rowFor(D.CHART.bp, o.sys) < 0 || CH.rowFor(D.CHART.bp, o.dia) < 0 || o.dia >= o.sys);
+    const times = sc.prev.map(o => +o.time24).concat(+sc.cur.time24);
+    if (bad || !(times[0] < times[1] && times[1] < times[2])) { ok(false, 'chart scenario not plottable or out of order: ' + JSON.stringify(sc)); break; }
+  }
+}
+
 
 // drugs
 for (const k of ['para', 'meto']) { const d = D.DRUGS[k]; ok(d.generic && d.indication && d.adverse && d.src.every(s => D.SRC[s[0]]), `drug ${k} incomplete`); }

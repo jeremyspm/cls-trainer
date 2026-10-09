@@ -273,8 +273,8 @@
       line: 'That was 110 over 60. That’s normal, on the low side of normal. Do you know what your blood pressure usually is?',
       keys: [['over'], ['normal', 'high', 'low', 'usual']], lines: ['vs.i11', 'vs.e5'], src: ['vid-vs', '09:16'] },
     { id: 'bp-doc', ph: 'Blood pressure: two-step', kind: 'do', bp: true, t: 'Chart the BP',
-      cue: 'An arrow pointing onto the systolic line, an arrow pointing onto the diastolic line, joined with a dotted line. (Only the systolic scores on the EWS, but you chart both.)',
-      lines: ['vs.e1'], src: ['vid-vs', '17:03'] },
+      cue: 'An arrowhead pointing UP with its tip on the systolic, one pointing DOWN with its tip on the diastolic, joined by a dotted line. (Only the systolic scores on the EWS, but you chart both.)',
+      lines: ['vs.e1'], src: ['deck-vs', 'slide 39 + demo video 17:03'] },
 
     // ---- report & leave safe ----
     { id: 'vs-report-ask', ph: 'Report and leave him safe', kind: 'say', to: 'pt', t: 'Tell him you’ll talk to your preceptor',
@@ -511,20 +511,26 @@
   const CHART = {
     src: ['deck-vs', 'slides 34–36: Adult Vital Signs Chart'],
     rr: { title: 'Respiratory rate', how: 'write the number in its box', mark: 'num', rows: [['≥ 36', 36, 999, 'b'], ['25–35', 25, 35, 'p'], ['21–24', 21, 24, 'o'], ['12–20', 12, 20, 'w'], ['9–11', 9, 11, 'y'], ['5–8', 5, 8, 'p'], ['≤ 4', 0, 4, 'b']] },
-    temp: { title: 'Temperature', how: 'mark with an X', mark: 'x', rows: [['≥ 39s', 39, 99, 'o'], ['38s', 38, 38.99, 'y'], ['37s', 37, 37.99, 'w'], ['36s', 36, 36.99, 'w'], ['35s', 35, 35.99, 'y'], ['≤ 34s', 0, 34.99, 'o']] },
-    bp: { title: 'Blood pressure', how: 'an arrow onto the systolic, an arrow onto the diastolic, a dotted line between', mark: 'arrow',
+    spo2: { title: 'Oxygen saturation (%)', how: 'write the value in its box', mark: 'num', rows: [['≥ 96', 96, 100, 'w'], ['94–95', 94, 95, 'y'], ['92–93', 92, 93, 'o'], ['≤ 91', 0, 91, 'p']] },
+    o2: { title: 'Oxygen', how: 'tick room air, or write the L/min', mark: 'tick', rows: [['Room air', null, null, 'w'], ['Supplement', null, null, 'o']] },
+    temp: { title: 'Temperature (°C)', how: 'mark with an X; write the value if off the scale', mark: 'x', span: 1, rows: [['≥ 39s', 39, 99, 'o'], ['38s', 38, 38.99, 'y'], ['37s', 37, 37.99, 'w'], ['36s', 36, 36.99, 'w'], ['35s', 35, 35.99, 'y'], ['≤ 34s', 0, 34.99, 'o']] },
+    loc: { title: 'Level of consciousness', how: 'tick', mark: 'tick', rows: [['Alert', null, null, 'w'], ['Voice', null, null, 'p'], ['Pain', null, null, 'p'], ['Unresponsive', null, null, 'b']] },
+    bp: { title: 'Blood pressure (mmHg)', how: '↑ arrowhead with its tip on the systolic, ↓ arrowhead with its tip on the diastolic, dotted line between (only the systolic scores)', mark: 'arrow', span: 10,
       rows: [['≥ 220 (write it)', 220, 999, 'p']].concat(tens(210, 110, 'w'), [['100s', 100, 109, 'y'], ['90s', 90, 99, 'o'], ['80s', 80, 89, 'p'], ['70s', 70, 79, 'p'], ['60s', 60, 69, 'b'], ['50s', 50, 59, 'b']]) },
-    hr: { title: 'Heart rate', how: 'mark with an X', mark: 'x',
+    hr: { title: 'Heart rate (bpm)', how: 'mark with an X; write the value if off the scale', mark: 'x', span: 10,
       rows: [['≥ 140 (write it)', 140, 999, 'b'], ['130s', 130, 139, 'p'], ['120s', 120, 129, 'o'], ['110s', 110, 119, 'o'], ['100s', 100, 109, 'y'], ['90s', 90, 99, 'y']].concat(tens(80, 50, 'w'), [['40s', 40, 49, 'o'], ['30s', 30, 39, 'b']]) },
   };
 
-  /* ---------- the med chart (Mr Luke’s 8-day NMC, Canvas) ---------- */
-  const NMC = {
-    src: ['chart', 'Regular Medicine page + administration record'],
-    rn: { name: 'CRAIG, Janine', initials: 'JC' },      // the RN already listed in Mr Luke's sample initials
-    doses: { para: { show: '1 g', ok: [[1, 'g'], [1000, 'mg']] }, meto: { show: '47.5 mg', ok: [[47.5, 'mg']] } },
-    codes: { R: 'Patient refused', W: 'Withheld', N: 'Not administered (reason in notes)', U: 'Patient unavailable', D: 'Prescriber’s instructions', SM: 'Self-medicating', CP: 'Carer/parent administered', RV: 'Review' },
-  };
+  CHART.order = ['rr', 'o2', 'spo2', 'temp', 'bp', 'hr', 'loc'];   // top → bottom, as on the paper chart
+  /* the escalation pathway printed on the chart in Janine's slide 34 (Auckland print of the NZEWS chart) */
+  CHART.pathway = [
+    { id: 't0', when: 'EWS 0', do: 'Carry on with the ordered observation frequency.' },
+    { id: 't1', when: 'EWS 1–5', do: 'Manage pain, fever or distress; consider increasing obs frequency in discussion with the senior nurse; document the outcome.' },
+    { id: 't2', when: 'EWS 6–7', do: 'Inform the nurse in charge; house officer review within 60 minutes; obs at least hourly.' },
+    { id: 't3', when: 'EWS 8–9, or any vital sign in the red (pink) zone', do: 'Inform the nurse in charge; registrar review within 30 minutes; obs at least every 30 minutes.' },
+    { id: 't4', when: 'EWS 10+, or any vital sign in the blue zone', do: 'Dial 777, say “Code Red” and the location, stay with the patient, support airway, breathing and circulation.' },
+  ];
+  CHART.pathwaySrc = ['deck-vs', 'slide 34: the escalation pathway on the chart'];
 
-  window.CLS_DATA = { SRC, RUBRIC, PATIENT, NORMALS, DRUGS, STEPS: { vs: VS, ma: MA }, CURVE, FILL, ZONES, CHART, NMC };
+  window.CLS_DATA = { SRC, RUBRIC, PATIENT, NORMALS, DRUGS, STEPS: { vs: VS, ma: MA }, CURVE, FILL, ZONES, CHART };
 })();

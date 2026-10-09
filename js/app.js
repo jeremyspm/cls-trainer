@@ -138,7 +138,7 @@
     if (name === 'live') return liveView(arg || 'vs');
     if (name === 'rubric') return rubricView(arg || 'vs');
     if (name === 'rnq') return rnqView(arg || 'vs', arg2);
-    if (name === 'chart') return chartView(arg === 'ma' ? 'ma' : 'vs');
+    if (name === 'chart') return chartView(arg === 'ma' ? 'ma' : arg === 'read' ? 'read' : 'vs');
     if (name === 'cuff') return cuffView();
     if (name === 'log') return logView();
     if (name === 'bp') return bpView();
@@ -178,7 +178,7 @@
     if (!s['walk-ma']) return { href: '#walk/ma', t: 'Read the med admin run once', why: 'Same patient, Mr Luke. Joan’s role play, step by step.' };
     if (!orderClean('ma', 'all')) return { href: '#order/ma/all', t: 'What’s next? Med admin', why: 'Lock in the order: chart → drug → expiry → bedside → Ask, Build, Check → sign.' };
     if (!rnqPassed('ma')) return { href: '#rnq/ma', t: 'The RN asks: med admin', why: 'The rights, the two drugs, and Ask–Build–Check. Get 8 or more right in one go.' };
-    if (!chartClean('ma')) return { href: '#chart/ma', t: 'Sign the med chart', why: 'Three rubric lines: correct medication; correct date, time, dose; appropriate initials. Get one entry fully right.' };
+    if (!seen().chartsim) return { href: '#chart/ma', t: 'Sign Mr Luke’s med chart (Chart Sim)', why: 'Three rubric lines: correct medication; correct date, time, dose; appropriate initials. Do his four rounds on the real 8-day chart.' };
     const maLvl = bestLevelMet('ma');
     const weak = weakSteps('vs').concat(weakSteps('ma'));
     if (weak.length) return { href: '#order/' + (weakSteps('vs').length ? 'vs' : 'ma') + '/weak', t: 'Fix your weak steps', why: weak.length + ' step' + (weak.length > 1 ? 's' : '') + ' you’ve missed in “What’s next?” and haven’t got right twice since.' };
@@ -225,7 +225,7 @@
         <button class="row" data-go="#rubric/ma"><span class="ic">📋</span><span class="tx"><b>The marking sheet</b><span>Every line, word for word</span></span></button>
       </div>
       <button class="row" data-go="#rnq/ma"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · med admin</b><span>${rnqLine('ma')}</span></span><span class="go">›</span></button>
-      <button class="row" data-go="#chart/ma"><span class="ic">✍️</span><span class="tx"><b>Sign the med chart</b><span>Date, 24-hour time, dose with units, Giv/Chck, or the right code</span></span><span class="go">›</span></button>
+      <button class="row" data-go="#chart/ma"><span class="ic">✍️</span><span class="tx"><b>Sign the med chart</b><span>Mr Luke’s real 8-day chart in Chart Sim: four rounds, Giv/Chck, W and R</span></span><span class="go">›</span></button>
       <div class="eyebrow">More</div>
       <button class="row" data-go="#order/vs/all"><span class="ic">🔢</span><span class="tx"><b>What’s next? · whole vital signs run</b><span>Chart to hand hygiene</span></span><span class="go">›</span></button>
       <button class="row" data-go="#rubric/vs"><span class="ic">📋</span><span class="tx"><b>Vital signs marking sheet</b><span>Every line, word for word</span></span><span class="go">›</span></button>
@@ -771,8 +771,26 @@
   /* ---------------- stage 3: Chart it, Sign the med chart, Real cuff ---------------- */
   const chartApi = () => ({ D, esc, srcChip, blip, toast, shuffle, addLog, log, store });
   function chartView(kind) {
-    setHeader(kind === 'vs' ? 'Chart it' : 'Sign the med chart', kind === 'vs' ? 'NZ adult vital signs chart' : 'Mr Luke’s National Medication Chart', true);
-    if (kind === 'vs') window.CLS_CHART.mountVS(view, chartApi()); else window.CLS_CHART.mountMA(view, chartApi());
+    if (kind === 'ma') return chartSimCard();
+    setHeader('Chart it', kind === 'read' ? 'Read the chart · Janine’s slides 38–39' : 'NZ adult vital signs chart', true);
+    if (kind === 'read') window.CLS_CHART.mountRead(view, chartApi()); else window.CLS_CHART.mountVS(view, chartApi());
+  }
+  /* Signing the med chart lives in Chart Sim (pharm-final/chart.html): the NZ 8-Day National Medication Chart redrawn box
+     for box, with Mr Luke added as a patient (8 Oct 2026). One chart, one place: this card just opens it. */
+  const CHART_SIM = 'https://jeremyspm.github.io/pharm-final/chart.html#luke';
+  function chartSimCard() {
+    setHeader('Sign the med chart', 'Mr Luke’s real 8-day chart, in Chart Sim', true);
+    view.innerHTML = `
+      <div class="card"><b>Mr Luke is a patient in Chart Sim.</b>
+        <p class="small">Chart Sim is the NZ 8-Day National Medication Chart redrawn box for box: the same chart as Mr Luke’s on Canvas. His page has his real details (NHI DGY 2963, Dr Penny Black, Janine Craig “JC” in the sample initials) and the two new orders from your CLS brief.</p>
+        <ul class="checklist small">
+          <li><i>1</i><span><b>Read:</b> questions from his chart (NHI, allergies, what’s due, the 4 g maximum…)</span></li>
+          <li><i>2</i><span><b>Chart it:</b> four rounds: sign your metoprolol with Janine’s check · his first paracetamol · pulse 52, so <b>W</b> (withheld) · he refuses, so <b>R</b></span></li>
+        </ul>
+        <p class="small muted">Tap to fill, or write with your finger or a pen. It marks the right box, the right day and time, your initials AND the RN’s check.</p></div>
+      <div class="btns"><a class="btn primary block" id="openCS" href="${CHART_SIM}">Open Mr Luke’s chart</a></div>
+      <div class="card small"><b>Why there and not here?</b> Chart Sim already is a one-to-one copy of the chart you’ll sign, with 10 other patients your cohort uses. One chart, kept right in one place.</div>`;
+    $('#openCS').onclick = () => markSeen('chartsim');
   }
   function cuffView() {
     setHeader('Real cuff', 'Your own readings, logged', true);

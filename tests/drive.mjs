@@ -131,51 +131,52 @@ async function run(width, height) {
   ok(+(await page.locator('#gread').textContent()) > 20, `${tag} bp: pumping did not raise the pressure`);
   await overflow('bp lab');
 
-  // Chart it: plot a whole column correctly → 7/7
-  await go('#chart/vs');
-  const obs = await page.evaluate(() => {
-    const m = document.querySelector('.card').innerText.match(/Temp ([\d.]+) °C · HR (\d+) · RR (\d+) · BP (\d+)\/(\d+) · taken at (\d+):(\d+) (am|pm)/);
-    let h = +m[6] % 12; if (m[8] === 'pm') h += 12;
-    return { temp: +m[1], hr: +m[2], rr: +m[3], sys: +m[4], dia: +m[5], t24: String(h).padStart(2, '0') + m[7] };
-  });
-  await page.click(`[data-t="${obs.t24}"]`); await page.click('#nx');
-  for (const [sec, v] of [['temp', obs.temp], ['hr', obs.hr], ['rr', obs.rr], ['bp', obs.sys], ['bp', obs.dia]]) {
-    const ri = await page.evaluate(([s, val]) => CLS_CHART.rowFor(CLS_DATA.CHART[s], val), [sec, v]);
-    await page.click(`.vc-row[data-ri="${ri}"]`); await page.click('#nx');
-  }
-  const abn = { temp: obs.temp < 36.5 || obs.temp > 37.5, hr: obs.hr < 60 || obs.hr > 100, rr: obs.rr < 12 || obs.rr > 20, bp: obs.sys < 110 || obs.sys > 140 || obs.dia < 60 || obs.dia > 90 };
-  for (const k of Object.keys(abn)) if (abn[k]) await page.click(`.pickc[data-k="${k}"]`);
-  await page.click('#abnGo'); await page.click('#nx');
-  ok((await page.locator('.verdict').innerText()).trim() === '7 / 7', `${tag} chart it: expected 7/7 for a correct column`);
-  await overflow('chart it');
-
-  // Sign the med chart: a bare-number dose is refused with the unit message, then a correct entry signs clean
-  let sawBare = false;
-  for (let tries = 0; tries < 14; tries++) {
-    await go('#home'); await go('#chart/ma');
-    const s = await page.evaluate(() => {
-      const story = document.querySelector('.card').innerText, rx = document.querySelector('.nmc-rx').innerText;
-      const drug = /PARACETAMOL/.test(rx) ? 'para' : 'meto';
-      const kind = /refused/.test(story) ? 'refused' : /withheld/.test(story) ? 'withheld' : 'given';
-      let at;
-      const m12 = story.match(/at (\d{1,2}):(\d{2}) (am|pm)/);
-      if (m12) { let h = +m12[1] % 12; if (m12[3] === 'pm') h += 12; at = String(h).padStart(2, '0') + m12[2]; } else at = story.match(/At (\d{4})/)[1];
-      const d = new Date(); const date = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getFullYear()).slice(2);
-      return { drug, kind, at, date, needInit: !!document.querySelector('#myInit') };
+  // Chart it (v2): tap the exact spot for each value on the SVG chart; the last run makes one deliberate miss
+  const tapAt = async (key, value, nudge) => {
+    const pt = await page.evaluate(([k, v, n]) => {
+      const C = CLS_DATA.CHART, L = CLS_CHART.layout(C, C.order), p = CLS_CHART.place(C, L, k, v);
+      const svg = document.querySelector('#chartbox svg'), vb = svg.viewBox.baseVal;
+      let r = svg.getBoundingClientRect();
+      const y = p.y + (n || 0), x = 104 + 2 * 78 + 39;
+      window.scrollBy(0, r.top + y * (r.height / vb.height) - innerHeight * 0.25);  // keep it clear of the sticky task bar
+      r = svg.getBoundingClientRect();
+      return { x: r.left + x * (r.width / vb.width), y: r.top + y * (r.height / vb.height) };
+    }, [key, value, nudge]);
+    await page.mouse.click(pt.x, pt.y);
+  };
+  for (const miss of [false, true]) {
+    await go('#home'); await go('#chart/vs');
+    const obs = await page.evaluate(() => {
+      const m = document.querySelector('.card').innerText.match(/Temp ([\d.]+) °C · HR (\d+) · RR (\d+) · BP (\d+)\/(\d+)/);
+      return { temp: +m[1], hr: +m[2], rr: +m[3], sys: +m[4], dia: +m[5] };
     });
-    if (s.needInit) await page.fill('#myInit', 'ZQ');
-    const dose = s.kind === 'refused' ? 'R' : s.kind === 'withheld' ? 'W' : (s.drug === 'para' ? '1 g' : '47.5 mg');
-    await page.fill('#fDate', s.date); await page.fill('#fTime', s.at); await page.fill('#fGiv', 'ZQ'); await page.fill('#fChk', 'JC');
-    if (s.kind === 'given' && !sawBare) {
-      await page.fill('#fDose', s.drug === 'para' ? '1' : '47.5'); await page.click('#sign');
-      ok((await page.locator('#fb').innerText()).includes('Write the unit too'), `${tag} med chart: bare-number dose not caught`);
-      sawBare = true;
+    const mc = async () => { const ans = await page.getAttribute('#task', 'data-ans'); await page.click(`#task [data-a="${ans}"]`); await page.click('#nx'); };
+    await mc();                                                     // 24-hour time
+    for (const [k, v] of [['temp', obs.temp], ['hr', obs.hr], ['rr', obs.rr], ['bp', obs.sys], ['bp', obs.dia]]) {
+      const wrong = miss && k === 'temp';
+      await tapAt(k, wrong ? (obs.temp >= 38 ? 36.2 : 38.6) : v, 0);
+      const good = await page.locator('#fb .card.good').count();
+      ok(wrong ? good === 0 : good === 1, `${tag} chart it: ${k} ${v} ${wrong ? 'deliberate miss was marked right' : 'exact tap was marked wrong'}`);
+      if (wrong) ok(await page.locator('.ch-ghost .ch-mk').count() === 1, `${tag} chart it: no ghost showing where the miss should have gone`);
+      await page.click('#nx');
     }
-    await page.fill('#fDose', dose); await page.click('#sign');
-    ok((await page.locator('#fb .verdict').innerText()).includes('Signed correctly'), `${tag} med chart (${s.drug}/${s.kind} at ${s.at}): a correct entry was not accepted`);
-    if (sawBare && tries >= 2) break;
+    const abn = { temp: obs.temp < 36.5 || obs.temp > 37.5, hr: obs.hr < 60 || obs.hr > 100, rr: obs.rr < 12 || obs.rr > 20, bp: obs.sys < 110 || obs.sys > 140 || obs.dia < 60 || obs.dia > 90 };
+    for (const k of Object.keys(abn)) if (abn[k]) await page.click(`.pickc[data-k="${k}"]`);
+    await page.click('#abnGo'); await page.click('#nx');
+    await mc(); await mc(); await mc();                             // trend, EWS total, escalation
+    const v = (await page.locator('.verdict').innerText()).trim();
+    ok(v === (miss ? '9 / 10' : '10 / 10'), `${tag} chart it: expected ${miss ? '9 / 10' : '10 / 10'}, got ${v}`);
+    await overflow('chart it');
   }
-  ok(sawBare, `${tag} med chart: never dealt a "given" scenario in 14 tries`);
+  // Read it (Janine's slides 38–39): answer every item right → 6 / 6
+  await go('#chart/read');
+  for (let i = 0; i < 6; i++) { const ans = await page.getAttribute('#view', 'data-ans'); await page.click(`#view [data-a="${ans.replace(/"/g, '\\"')}"]`); await page.click('#nx'); }
+  ok((await page.locator('.verdict').innerText()).trim() === '6 / 6', `${tag} read it: expected 6 / 6`);
+  await overflow('read it');
+
+  // Sign the med chart: now a card that opens Mr Luke in Chart Sim (pharm-final/chart.html#luke)
+  await go('#chart/ma');
+  ok((await page.getAttribute('#openCS', 'href')) === 'https://jeremyspm.github.io/pharm-final/chart.html#luke', `${tag} med chart: the Chart Sim link is wrong`);
   await overflow('sign the med chart');
 
   // Real cuff: arrive, log a first-try reading, then a miss with a reason
