@@ -71,6 +71,7 @@
   }
   view.addEventListener('click', e => {
     const c = e.target.closest('.chip.src'); if (c) toast(c.dataset.full, 5200);
+    const h = e.target.closest('[data-href]'); if (h) location.href = h.dataset.href;   // pages outside the router (paper.html)
   });
 
   /* ---------------- theme, header, sheet ---------------- */
@@ -175,6 +176,7 @@
     const vsLvl = bestLevelMet('vs');
     if (vsLvl < 0) return { href: '#setup/vs', t: 'Live run: vital signs (Coach)', why: 'Say it out loud with everything on screen. The app plays Mr Luke and your preceptor.', level: 'coach' };
     if (!chartClean('vs')) return { href: '#chart/vs', t: 'Chart it: one clean column', why: '“Accurately documents findings directly on vital signs chart” is a rubric line. Plot a set of obs: X, number, arrows.' };
+    if (!s.paper) return { href: 'paper.html', t: 'Chart on the real paper chart', why: 'The actual chart from Janine’s deck. Print it (or use a pen), chart two stories on Mr Luke, then check the answers drawn on the same chart.' };
     if (!s['walk-ma']) return { href: '#walk/ma', t: 'Read the med admin run once', why: 'Same patient, Mr Luke. Joan’s role play, step by step.' };
     if (!orderClean('ma', 'all')) return { href: '#order/ma/all', t: 'What’s next? Med admin', why: 'Lock in the order: chart → drug → expiry → bedside → Ask, Build, Check → sign.' };
     if (!rnqPassed('ma')) return { href: '#rnq/ma', t: 'The RN asks: med admin', why: 'The rights, the two drugs, and Ask–Build–Check. Get 8 or more right in one go.' };
@@ -216,6 +218,7 @@
       </div>
       <button class="row" data-go="#rnq/vs"><span class="ic">🗣️</span><span class="tx"><b>The RN asks… · vital signs</b><span>${rnqLine('vs')}</span></span><span class="go">›</span></button>
       <button class="row" data-go="#chart/vs"><span class="ic">📝</span><span class="tx"><b>Chart it</b><span>Plot the obs on the NZ vital signs chart, 24-hour time, spot the abnormal</span></span><span class="go">›</span></button>
+      <button class="row" data-href="paper.html"><span class="ic">🖨️</span><span class="tx"><b>Real chart practice</b><span>The actual chart from Janine’s deck: print it, chart two stories, check the answers drawn on it</span></span><span class="go">›</span></button>
       <button class="row" data-go="#cuff"><span class="ic">🩺</span><span class="tx"><b>Real cuff log</b><span>${cuffLine()}</span></span><span class="go">›</span></button>
       <h3>💊 Medication administration <span class="small muted">· Mr Luke</span></h3>
       <div class="grid2">
@@ -230,7 +233,7 @@
       <button class="row" data-go="#order/vs/all"><span class="ic">🔢</span><span class="tx"><b>What’s next? · whole vital signs run</b><span>Chart to hand hygiene</span></span><span class="go">›</span></button>
       <button class="row" data-go="#rubric/vs"><span class="ic">📋</span><span class="tx"><b>Vital signs marking sheet</b><span>Every line, word for word</span></span><span class="go">›</span></button>
       <button class="row" data-go="#log"><span class="ic">📈</span><span class="tx"><b>Your log</b><span>${L.length ? L.length + ' entries' : 'Nothing yet'}</span></span><span class="go">›</span></button>      <p class="small faint" style="margin-top:18px">Built from your two marking sheets, Janine’s vital signs demo, Joan’s med admin role play, and their decks. Tap <b>?</b> for how it works and where each piece came from.</p>`;
-    $('#decide').onclick = () => { if (p.level) { settings.level = p.level; saveSettings(); } location.hash = p.href; };
+    $('#decide').onclick = () => { if (p.level) { settings.level = p.level; saveSettings(); } if (p.href[0] === '#') location.hash = p.href; else location.href = p.href; };
     view.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { location.hash = b.dataset.go; });
   }
 

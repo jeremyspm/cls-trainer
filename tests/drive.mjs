@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const { chromium } = createRequire('C:/Users/USER/Desktop/github/airi/package.json')('playwright');
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.json': 'application/json' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.json': 'application/json', '.png': 'image/png', '.pdf': 'application/pdf' };
 
 let fails = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { fails++; console.log('FAIL ' + m); } };
@@ -173,6 +173,26 @@ async function run(width, height) {
   for (let i = 0; i < 6; i++) { const ans = await page.getAttribute('#view', 'data-ans'); await page.click(`#view [data-a="${ans.replace(/"/g, '\\"')}"]`); await page.click('#nx'); }
   ok((await page.locator('.verdict').innerText()).trim() === '6 / 6', `${tag} read it: expected 6 / 6`);
   await overflow('read it');
+
+  // Real chart practice (paper.html): from the Chart it tab; answers hidden until asked for, then drawn ON the real chart
+  await go('#chart/vs');
+  await Promise.all([page.waitForURL(/paper\.html/), page.click('.seg [data-href="paper.html"]')]);
+  await page.waitForFunction(() => [...document.images].every(i => i.complete));
+  const pp = await page.evaluate(() => ({ imgs: [...document.images].map(i => i.naturalWidth), marks: document.querySelectorAll('.ink g').length, hidden: document.querySelector('#answers').offsetParent === null }));
+  ok(pp.imgs.length === 3 && pp.imgs.every(w => w > 0), `${tag} paper: a chart picture did not load`);
+  ok(pp.marks === 10 && pp.hidden, `${tag} paper: expected 10 answer columns, hidden until asked`);
+  await overflow('paper');
+  await page.click('#ansBtn');
+  const pa = await page.evaluate(() => {
+    const i = document.querySelector('.pg3 img').getBoundingClientRect(), s = document.querySelector('.pg3 svg').getBoundingClientRect();
+    return { open: document.querySelector('#answers').offsetParent !== null, seen: !!JSON.parse(localStorage.getItem('cls.seen') || '{}').paper,
+      aligned: i.width > 200 && Math.abs(i.left - s.left) < 1 && Math.abs(i.top - s.top) < 1 && Math.abs(i.width - s.width) < 1 && Math.abs(i.height - s.height) < 1 };
+  });
+  ok(pa.open && pa.seen, `${tag} paper: answers did not open, or Decide-for-me was not told`);
+  ok(pa.aligned, `${tag} paper: the answer ink is not sitting exactly on the chart picture`);
+  ok((await page.request.get(BASE + 'print/vs-chart-practice.pdf')).ok(), `${tag} paper: the PDF is missing`);
+  await overflow('paper answers');
+  await page.goto(BASE + '#home'); await page.waitForSelector('#decide');
 
   // Sign the med chart: now a card that opens Mr Luke in Chart Sim (pharm-final/chart.html#luke)
   await go('#chart/ma');

@@ -10,7 +10,7 @@ let fails = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { fails++; console.log('FAIL ' + msg); } };
 
 // 1. every script parses as a classic script
-for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/chart-vs.js', 'js/chart.js', 'js/app.js', 'sw.js']) {
+for (const f of ['js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/chart-vs.js', 'js/chart.js', 'js/app.js', 'js/paper.js', 'sw.js']) {
   try { new vm.Script(read(f), { filename: f }); ok(true); } catch (e) { ok(false, `${f} does not parse: ${e.message}`); }
 }
 
@@ -157,21 +157,61 @@ for (let i = 0; i < 2000; i++) {
   }
 }
 
+// Real chart practice (paper.html): the answer marks sit on the real chart's rows, and every hand-worked EWS agrees
+{
+  const dummy = { querySelector: () => ({}), set innerHTML(v) { dummy.html = v; }, html: '' };
+  sandbox.document = { getElementById: () => dummy, querySelectorAll: () => [] };
+  vm.runInContext(read('js/paper.js'), sandbox);
+  const P = sandbox.window.CLS_PAPER;
+  ok(P && dummy.html.length > 1000, 'paper.js did not render');
+  const G = P.GEO;
+  for (const k of D.CHART.order) {
+    ok(G[k] && G[k].length === D.CHART[k].rows.length + 1, `paper GEO.${k}: ${G[k] && G[k].length - 1} rows measured, the chart has ${D.CHART[k].rows.length}`);
+    ok(G[k] && G[k].every((y, i) => i === 0 || y > G[k][i - 1]), `paper GEO.${k}: row lines not top to bottom`);
+  }
+  for (const [a, b] of [['date', 'time'], ['time', 'rr'], ['rr', 'o2'], ['o2', 'spo2'], ['spo2', 'temp'], ['temp', 'bp'], ['bp', 'hr'], ['hr', 'loc'], ['loc', 'ews']])
+    ok(G[a][G[a].length - 1] === G[b][0], `paper GEO: ${a} does not end where ${b} starts`);
+  ok(G.colsL.length === 10 && G.colsR.length === 10 && G.colsL[9] < G.colsR[0], 'paper GEO: needs 9 + 9 columns, left half first');
+  const png = fs.readFileSync(path.join(root, 'print/vs-chart.png'));
+  ok(png.readUInt32BE(16) === G.box[2] && png.readUInt32BE(20) === G.box[3], `print/vs-chart.png is ${png.readUInt32BE(16)}×${png.readUInt32BE(20)}, GEO.box says ${G.box[2]}×${G.box[3]} (re-run tools/build-paper.py)`);
+  for (const f of ['print/escalation.png', 'print/vs-chart-practice.pdf']) ok(fs.existsSync(path.join(root, f)), `missing ${f} (tools/build-paper.py, tools/build-paper-pdf.mjs)`);
+  const sets = P.STORIES.flatMap(st => st.sets.map((s, i) => Object.assign({ tag: st.id + (i + 1), half: st.half, n: st.sets.length }, s)));
+  for (const st of P.STORIES) ok(st.sets.length <= 9, `paper story ${st.id}: more sets than the 9 columns in its half`);
+  ok(new Set(P.STORIES.map(s => s.half)).size === P.STORIES.length, 'paper: two stories share a half of the chart');
+  for (const s of sets) {
+    const sp = [['rr', s.rr], ['spo2', s.spo2], ['temp', s.temp], ['bp', s.sys], ['bp', s.dia], ['hr', s.hr]].map(([k, v]) => [k, v, P.spot(k, v)]);
+    for (const [k, v, p] of sp) ok(p && p.y >= G[k][0] && p.y <= G[k][G[k].length - 1], `paper ${s.tag}: ${k} ${v} has no place on the chart`);
+    ok(s.dia < s.sys && P.LOC[s.loc] && /^\d{4}$/.test(s.time), `paper ${s.tag}: bad BP, LOC or time`);
+    ok(P.score(s).total === s.ews, `paper ${s.tag}: hand-worked EWS ${s.ews} but the chart's zones give ${P.score(s).total}`);
+    ok(!!s.note, `paper ${s.tag}: needs a note`);
+  }
+  // the traps the stories exist for
+  const tiers = sets.map(s => P.score(s).tier);
+  const onLine = sets.some(s => s.sys % 10 === 0 && s.dia % 10 === 0) && sets.some(s => s.temp % 1 === 0);
+  ok(onLine, 'paper: no round BP / whole-degree temp (values ON a line)');
+  ok(sets.some(s => P.spot('hr', s.hr).write) && sets.some(s => P.spot('temp', s.temp).write), 'paper: needs an off-scale HR AND temp (written, not marked)');
+  ok(sets.some(s => s.o2 !== 'ra') && sets.some(s => s.loc !== 'A') && sets.some(s => s.date), 'paper: needs supplemental O2, a LOC change and a date change');
+  ok(['t0', 't1', 't2', 't3', 't4'].every(t => tiers.includes(t)), 'paper: the stories must reach every step of the pathway, got ' + [...new Set(tiers)].join(' '));
+  delete sandbox.document;
+}
 
 // drugs
 for (const k of ['para', 'meto']) { const d = D.DRUGS[k]; ok(d.generic && d.indication && d.adverse && d.src.every(s => D.SRC[s[0]]), `drug ${k} incomplete`); }
 for (const n of D.NORMALS) ok(D.SRC[n.src[0]], `normal ${n.k}: unknown source`);
 
 // 3. wiring: files referenced exist
-const html = read('index.html');
-for (const m of html.matchAll(/(?:src|href)="([^"#:]+)"/g)) ok(fs.existsSync(path.join(root, m[1])), `index.html references missing ${m[1]}`);
+for (const page of ['index.html', 'paper.html']) {
+  const html = read(page);
+  for (const m of html.matchAll(/(?:src|href)="([^"#:]+)"/g)) ok(fs.existsSync(path.join(root, m[1])), `${page} references missing ${m[1]}`);
+}
+for (const m of read('js/paper.js').matchAll(/(?:src|href)="(print\/[^"]+)"/g)) ok(fs.existsSync(path.join(root, m[1])), `js/paper.js references missing ${m[1]}`);
 const sw = read('sw.js');
 const shell = JSON.parse(sw.match(/const SHELL = (\[[^\]]+\])/)[1].replace(/'/g, '"'));
 for (const f of shell) if (f !== './') ok(fs.existsSync(path.join(root, f)), `sw.js SHELL lists missing ${f}`);
 
 // 4. every CSS custom property used is defined (the estate's .kref bug)
-const css = read('css/app.css') + read('js/app.js') + read('js/bp.js');
-const defined = new Set([...read('css/app.css').matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]));
+const css = read('css/app.css') + read('js/app.js') + read('js/bp.js') + read('paper.html') + read('js/paper.js');
+const defined = new Set([...(read('css/app.css') + read('paper.html')).matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]));
 for (const m of new Set([...css.matchAll(/var\((--[\w-]+)/g)].map(m => m[1]))) ok(defined.has(m), `CSS var ${m} used but never defined`);
 // house rule: --acc is a FILL, never text colour
 ok(!/(^|[^-\w])color:\s*var\(--acc\)/m.test(css), 'color:var(--acc) used as text (use --acc-tx)'); // accent-color is a fill: allowed

@@ -199,7 +199,7 @@
       const { svg } = drawChart(CH, KEYS, colsNow(), { current: 2, active: s.sec || null, ghost: st.ghost });
       const o = sc.cur;
       root.innerHTML = `
-        <div class="seg" style="margin-top:0"><button class="on">Plot it</button><button data-go="#chart/read">Read it</button></div>
+        <div class="seg" style="margin-top:0"><button class="on">Plot it</button><button data-go="#chart/read">Read it</button><button data-href="paper.html">Real chart</button></div>
         <div class="card small"><b>Your obs on Mr Luke</b> at ${o.time12}: Temp ${o.temp.toFixed(1)} °C · HR ${o.hr} · RR ${o.rr} · BP ${o.sys}/${o.dia}<br><span class="muted">SpO₂ ${o.spo2} % on room air and Alert are already charted. The two earlier columns are this morning’s.</span></div>
         <div class="chartbox" id="chartbox">${svg}</div>
         <div class="taskbar" id="task"></div>`;
@@ -388,7 +388,7 @@
       const o = options(it);
       const q = it.sec === 'hr' ? 'What is this heart rate?' : it.sec === 'temp' ? 'What is this temperature?' : 'What is this blood pressure?';
       root.innerHTML = `
-        <div class="seg" style="margin-top:0"><button data-go="#chart/vs">Plot it</button><button class="on">Read it</button></div>
+        <div class="seg" style="margin-top:0"><button data-go="#chart/vs">Plot it</button><button class="on">Read it</button><button data-href="paper.html">Real chart</button></div>
         <div class="progress"><i style="width:${Math.round(100 * i / items.length)}%"></i></div>
         <div class="small muted">${i + 1} of ${items.length}${it.src ? ' · from Janine’s ' + it.src[1] : ''}</div>
         <div class="chartbox narrow">${svg}</div>
