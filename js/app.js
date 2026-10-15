@@ -36,7 +36,7 @@
     const cap = x => (x ? x.charAt(0).toUpperCase() + x.slice(1) : x); // a line may open with {generic}
     return D.STEPS[run].map(s => Object.assign({}, s, {
       t: fill(s.t, ctx), cue: fill(s.cue, ctx), line: cap(fill(s.line, ctx)),
-      keys: s.keys ? s.keys.map(g => g.map(a => fill(a, ctx))) : null,
+      keys: s.keys ? s.keys.map(g => g.map(a => fill(a, ctx))).concat(s.drugKeys && ctx[s.drugKeys] ? ctx[s.drugKeys] : []) : null,
     }));
   }
   const youStep = s => s.kind === 'do' || s.kind === 'say';

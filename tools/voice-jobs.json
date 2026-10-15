@@ -324,9 +324,9 @@
    "why": "ma-know-rn"
   },
   {
-   "key": "1oam4rg7bct",
+   "key": "1kezdzsc3sb",
    "who": "you",
-   "text": "Paracetamol is a simple analgesic. He’s on it for his recurrent backache. Common adverse effects are very rare at the right dose: allergic rash, and liver damage if too much is taken. I’ll check it’s been at least 4 hours since his last dose and that he hasn’t had other paracetamol, because the max is 4 grams a day.",
+   "text": "Paracetamol is a simple analgesic. He’s on it for his recurrent backache. Common adverse effects are actually none at the right dose. The data sheet lists every one as very rare: allergic reactions and rash, bronchospasm in people sensitive to aspirin, low platelets, and liver problems. The main danger is liver damage from too much. I’ll check it’s been at least 4 hours since his last dose and that he hasn’t had other paracetamol, because the max is 4 grams a day.",
    "why": "ma-know"
   },
   {
@@ -498,9 +498,9 @@
    "why": "ma-time"
   },
   {
-   "key": "2egomnkwwt7",
+   "key": "woat4ybfes",
    "who": "you",
-   "text": "Metoprolol suxinate is a beta-adreno-ceptor blocker. He’s on it for his high blood pressure and his heart failure. Common adverse effects are tiredness, bradycardia, dizziness especially on standing, and cold hands and feet. I’ll check his pulse and blood pressure first, and he’s a falls risk because of the dizziness.",
+   "text": "Metoprolol suxinate is a beta-adreno-ceptor blocker. He’s on it for his high blood pressure and his heart failure. Common adverse effects are fatigue, which is very common, and the common ones: bradycardia, dizziness or light-headedness on standing, cold hands and feet, palpitations, dizziness, headache, nausea, abdominal pain, diarrhoea, constipation, and dyspnoea on exertion. I’ll check his pulse and blood pressure first, and he’s a falls risk because of the dizziness.",
    "why": "ma-know"
   },
   {
@@ -522,9 +522,9 @@
    "why": "ma-ask"
   },
   {
-   "key": "2a7tz2y2cey",
+   "key": "g2acix017e",
    "who": "you",
-   "text": "This is metoprolol suxinate. It’s to bring your blood pressure down and take some of the strain off your heart. It can make you feel tired, a bit dizzy when you stand up, or give you cold hands and feet. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.",
+   "text": "This is metoprolol suxinate. It’s to bring your blood pressure down and take some of the strain off your heart. The common side effects are feeling tired; a slow heartbeat, or feeling your heart pounding; feeling dizzy or light-headed, especially when you stand up; cold hands and feet; headaches; feeling sick, tummy pain, diarrhoea or constipation; and getting short of breath when you’re active. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.",
    "why": "ma-build"
   },
   {
@@ -912,9 +912,9 @@
    "why": "o-ind"
   },
   {
-   "key": "wevpy4xsyl",
+   "key": "wtfbx1erx8",
    "who": "rn",
-   "text": "What are the common adverse effects of metoprolol?",
+   "text": "What are ALL the common adverse effects of metoprolol?",
    "why": "o-ae"
   },
   {

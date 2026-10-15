@@ -46,8 +46,9 @@ for (const run of ['vs', 'ma']) {
   for (const [dk, ctx] of ctxs) {
     for (const s of S) {
       for (const f of ['t', 'cue', 'line']) ok(!/\{\w+\}/.test(fill(s[f], ctx) || ''), `${s.id} (${dk}): unfilled placeholder in ${f}: ${fill(s[f], ctx)}`);
+      if (s.drugKeys) ok(Array.isArray(ctx[s.drugKeys]) && ctx[s.drugKeys].length && ctx[s.drugKeys].every(g => g.length), `${s.id} (${dk}): FILL.${s.drugKeys} missing or empty`);
       if (s.keys) {
-        const keys = s.keys.map(g => g.map(a => fill(a, ctx)));
+        const keys = s.keys.map(g => g.map(a => fill(a, ctx))).concat(s.drugKeys && ctx[s.drugKeys] ? ctx[s.drugKeys] : []);
         ok(!keys.flat().some(a => /\{\w+\}/.test(a)), `${s.id} (${dk}): unfilled placeholder in keys`);
         const hit = V.match(fill(s.line, ctx), keys);
         ok(hit.every(Boolean), `${s.id} (${dk}): its own model line does not satisfy key group(s) ${hit.map((h, i) => h ? '' : JSON.stringify(keys[i])).filter(Boolean).join(' ')}`);
@@ -197,6 +198,8 @@ for (let i = 0; i < 2000; i++) {
 
 // drugs
 for (const k of ['para', 'meto']) { const d = D.DRUGS[k]; ok(d.generic && d.indication && d.adverse && d.src.every(s => D.SRC[s[0]]), `drug ${k} incomplete`); }
+// Joan wants ALL the common adverse effects: metoprolol's data sheet has 12 (1 very common + 11 common), and the run must listen for each
+ok(D.FILL.meto.aeKeys.length === 12 && D.FILL.meto.aeKeysPlain.length === 12, `metoprolol: listening for ${D.FILL.meto.aeKeys.length} / ${D.FILL.meto.aeKeysPlain.length} adverse effects, the data sheet has 12 common ones`);
 for (const n of D.NORMALS) ok(D.SRC[n.src[0]], `normal ${n.k}: unknown source`);
 
 // 3. wiring: files referenced exist

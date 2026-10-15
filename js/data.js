@@ -120,7 +120,7 @@
       indicationPlain: 'for the backache you’ve been getting',
       freq: 'qid, four times a day. Recommended times on the chart: 0600, 1200, 1800, 2200',
       lastDose: 'At least 4 hours since the last dose, and no more than 4 g in 24 hours. 1 g qid is already 4 g a day, so ANY other paracetamol (Panadol from home, cold-and-flu products) would be too much.',
-      adverse: 'At the right dose, side effects are very rare: allergic reactions (rash, swelling, anaphylaxis), bronchospasm in people sensitive to aspirin/NSAIDs, and liver problems. The big risk is liver damage from too much.',
+      adverse: 'None are common at the right dose: the data sheet lists every one as very rare. Very rare: allergic reactions (rash, swelling, anaphylaxis), bronchospasm in people sensitive to aspirin/NSAIDs, low platelets (thrombocytopenia), and liver problems. The big risk is liver damage from too much.',
       adversePlain: 'Most people get no side effects from paracetamol. If you get a rash, swelling, or trouble breathing, ring your bell straight away. The main thing is never to take more than you’re given, because too much can harm your liver.',
       considerations: ['Pain score before, and check it worked about 30–60 minutes after', 'Time since the last dose (at least 4 hours) and the 24-hour total (max 4 g)', 'Ask about other paracetamol he might be taking (Panadol from home, cold-and-flu products)', 'Liver disease or heavy alcohol use means caution (Special Care box: hepatic impairment)'],
       takeIt: 'Swallow with a glass of water.',
@@ -135,8 +135,8 @@
       indicationPlain: 'to bring your blood pressure down and take some of the strain off your heart',
       freq: 'daily, once a day, usually in the morning (Mane 0800 on the chart)',
       lastDose: 'Once a day only. Check the administration record that today’s dose hasn’t already been given.',
-      adverse: 'Very common: tiredness. Common: slow heart rate (bradycardia), dizziness especially when standing up, cold hands and feet, headache, nausea, breathlessness on exertion. Never stop it suddenly.',
-      adversePlain: 'It can make you feel tired, a bit dizzy when you stand up, or give you cold hands and feet. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.',
+      adverse: 'All 12 from the data sheet. Very common: tiredness (fatigue). Common: slow heart rate (bradycardia), dizziness or light-headedness on standing (postural), cold hands and feet, palpitations, dizziness, headache, nausea, abdominal pain, diarrhoea, constipation, breathlessness on exertion (dyspnoea).',
+      adversePlain: 'The common side effects are feeling tired; a slow heartbeat, or feeling your heart pounding; feeling dizzy or light-headed, especially when you stand up; cold hands and feet; headaches; feeling sick, tummy pain, diarrhoea or constipation; and getting short of breath when you’re active. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.',
       considerations: ['Check his pulse and BP BEFORE giving it. If either is low, withhold and tell the RN.', 'Falls risk (dizziness, postural drop): he’s 79', 'Swallow whole. It can be halved, but NEVER crushed or chewed (controlled release)', 'Don’t stop suddenly: it can make heart failure worse', 'Asthma or wheeze: beta blockers can cause bronchospasm (Joan’s pharmacodynamics deck: metoprolol blocks salbutamol)'],
       takeIt: 'Swallow it whole with a glass of water. Don’t crush or chew it.',
       checkBack: 'what this tablet is for, and what you’d do if you felt dizzy',
@@ -150,7 +150,8 @@
      line: the model line (spoken by the app for pt/rn; shown as your model for say)
      keys: groups the mic listens for (all groups needed, any word in a group)
      lines: rubric line ids this step earns · src: [sourceKey, where]
-     trap: the mistake people make here · bp: part of the two-step BP chain */
+     trap: the mistake people make here · bp: part of the two-step BP chain
+     drugKeys: names a FILL field holding extra key groups for that drug (every common adverse effect) */
   const VS = [
     // ---- before you go in (with your preceptor, at the chart) ----
     { id: 'vs-chart', ph: 'At the chart, with your preceptor', kind: 'say', to: 'rn', t: 'Check the chart: right patient, obs due',
@@ -341,10 +342,10 @@
       keys: [['last dose', 'last given', 'last time', 'hasnt had', 'not had', 'due'], ['daily', 'qid', 'four times', 'once a day', 'times a day', 'hours']], lines: ['ma.a4'], src: ['vid-ma', '13:56'] },
     { id: 'ma-know-rn', ph: 'With your RN, before the bedside', kind: 'rn', t: 'Your RN asks', line: 'So can you tell me a little bit about this drug?', src: ['vid-ma', '14:48'] },
     { id: 'ma-know', ph: 'With your RN, before the bedside', kind: 'say', to: 'rn', t: 'Knowledge: generic name, why HE’s on it, side effects',
-      cue: 'Technical words are fine with the RN. Generic name · drug class · indication FOR MR LUKE · common adverse effects · one nursing consideration.',
+      cue: 'Technical words are fine with the RN. Generic name · drug class · indication FOR MR LUKE · ALL the common adverse effects (no rare ones) · one nursing consideration.',
       line: '{generic} is a {klassShort}. He’s on it for {indication}. Common adverse effects are {adverseShort}. {considerShort}',
-      keys: [['{generic1}'], ['{indKey}'], ['side effect', 'adverse', '{aeKey}']], lines: ['ma.k1', 'ma.k2', 'ma.k3', 'ma.a7'], src: ['rub-ma', 'Apply knowledge'],
-      trap: 'The indication has to be about HIM (“his backache” or “his blood pressure”), not a textbook list.' },
+      keys: [['{generic1}'], ['{indKey}'], ['side effect', 'adverse']], drugKeys: 'aeKeys', lines: ['ma.k1', 'ma.k2', 'ma.k3', 'ma.a7'], src: ['rub-ma', 'Apply knowledge'],
+      trap: 'Joan wants ALL the common adverse effects, not one, two or three. No rare ones. And the indication has to be about HIM (“his backache” or “his blood pressure”), not a textbook list.' },
     { id: 'ma-select', ph: 'With your RN, before the bedside', kind: 'say', to: 'rn', t: 'Select the pack: label vs chart (check 1)',
       cue: 'Read the label: generic name and strength against the chart. Work out how many: {tabs}.',
       line: 'The label says {strength}. It’s prescribed {dose}, so that’s {tabs}.',
@@ -383,9 +384,9 @@
       lines: ['ma.e1'], src: ['vid-ma', '18:43'] },
     { id: 'ma-ask-pt', ph: 'At the bedside', kind: 'pt', t: 'Mr Luke answers', line: 'No, I don’t think so. The doctor just said it was a new one.', src: ['tool', 'patient reply'] },
     { id: 'ma-build', ph: 'At the bedside', kind: 'say', to: 'pt', t: 'BUILD: what it’s for, how to take it, side effects, what to do',
-      cue: 'PLAIN words, no jargon. What it’s for ({indicationPlain}). How to take it. The common side effects and what to DO about them. Pause and let him think.',
+      cue: 'PLAIN words, no jargon. What it’s for ({indicationPlain}). How to take it. ALL the common side effects and what to DO about them. Pause and let him think.',
       line: 'This is {generic}. It’s {indicationPlain}. {adversePlain}',
-      keys: [['{generic1}', 'this tablet', 'this medicine'], ['for', 'help'], ['ring', 'bell', 'let us know', 'tell us', 'side effect']], lines: ['ma.e2', 'ma.k1', 'ma.k2', 'ma.k3', 'ma.a7'], src: ['vid-ma', '19:30'],
+      keys: [['{generic1}', 'this tablet', 'this medicine'], ['for', 'help'], ['ring', 'bell', 'let us know', 'tell us', 'side effect']], drugKeys: 'aeKeysPlain', lines: ['ma.e2', 'ma.k1', 'ma.k2', 'ma.k3', 'ma.a7'], src: ['vid-ma', '19:30'],
       trap: 'Joan’s RN stopped the student at “resistance”: say it in words he’d use.' },
     { id: 'ma-check', ph: 'At the bedside', kind: 'say', to: 'pt', t: 'CHECK: teach-back in his own words',
       cue: 'Not “Do you understand?” Ask him to tell you back. If he misses a bit, prompt kindly and re-explain. It’s on you, not him.',
@@ -487,7 +488,9 @@
     para: {
       generic: 'paracetamol', generic1: 'paracetamol', order: 'Paracetamol 1 g PO qid', dose: '1 g', strength: 'paracetamol 500 mg tablets',
       tabs: 'two 500 mg tablets', freqShort: 'four times a day (qid)', klassShort: 'simple analgesic', indication: 'his recurrent backache',
-      indKey: 'back', aeKey: 'liver', adverseShort: 'very rare at the right dose: allergic rash, and liver damage if too much is taken',
+      indKey: 'back', adverseShort: 'actually none at the right dose. The data sheet lists every one as very rare: allergic reactions and rash, bronchospasm in people sensitive to aspirin, low platelets, and liver problems. The main danger is liver damage from too much',
+      aeKeys: [['none', 'no common', 'not common', 'rare'], ['liver']],
+      aeKeysPlain: [['no side effects', 'most people', 'rare'], ['liver']],
       considerShort: 'I’ll check it’s been at least 4 hours since his last dose and that he hasn’t had other paracetamol, because the max is 4 grams a day.',
       indicationPlain: DRUGS.para.indicationPlain, adversePlain: DRUGS.para.adversePlain, checkBack: DRUGS.para.checkBack, takeIt: DRUGS.para.takeIt,
       lastDose: DRUGS.para.lastDose, ptCheck: 'It’s for my back pain, and if I get a rash or feel funny I ring the bell. And I don’t take any of my own Panadol.',
@@ -496,7 +499,10 @@
     meto: {
       generic: 'metoprolol succinate', generic1: 'metoprolol', order: 'Metoprolol Succinate CR 47.5 mg PO daily', dose: '47.5 mg', strength: 'metoprolol succinate CR 47.5 mg',
       tabs: 'one 47.5 mg CR tablet', freqShort: 'once daily', klassShort: 'beta-adrenoceptor blocker', indication: 'his high blood pressure and his heart failure',
-      indKey: 'pressure', aeKey: 'brady', adverseShort: 'tiredness, bradycardia, dizziness especially on standing, and cold hands and feet',
+      indKey: 'pressure', adverseShort: 'fatigue, which is very common, and the common ones: bradycardia, dizziness or light-headedness on standing, cold hands and feet, palpitations, dizziness, headache, nausea, abdominal pain, diarrhoea, constipation, and dyspnoea on exertion',
+      // all 12 very common + common effects (Medsafe data sheet 4.8); Joan wants every one
+      aeKeys: [['fatigue', 'tired'], ['bradycardia', 'slow heart', 'slow pulse'], ['on standing', 'postural', 'stand'], ['cold hands', 'cold'], ['palpitation'], ['dizziness', 'dizz'], ['headache'], ['nausea', 'sick'], ['abdominal pain', 'abdominal', 'tummy', 'stomach'], ['diarrhoea', 'diarrhea', 'diarrh'], ['constipation', 'constipat'], ['dyspnoea', 'dyspn', 'breathless', 'short of breath']],
+      aeKeysPlain: [['tired'], ['slow heartbeat', 'slow heart'], ['pounding', 'palpitation', 'racing'], ['stand'], ['cold'], ['dizzy', 'dizz', 'light headed', 'lightheaded'], ['headache'], ['sick', 'nausea'], ['tummy', 'stomach', 'belly'], ['diarrh', 'runny'], ['constipat'], ['short of breath', 'breathless', 'breath']],
       considerShort: 'I’ll check his pulse and blood pressure first, and he’s a falls risk because of the dizziness.',
       indicationPlain: DRUGS.meto.indicationPlain, adversePlain: DRUGS.meto.adversePlain, checkBack: DRUGS.meto.checkBack, takeIt: DRUGS.meto.takeIt,
       lastDose: DRUGS.meto.lastDose, ptCheck: 'It’s for my blood pressure and my heart, and if I feel dizzy I ring the bell before I get up.',
