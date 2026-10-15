@@ -203,6 +203,7 @@
     const today = new Date().toDateString();
     const todayN = L.filter(e => new Date(e.t).toDateString() === today).length;
     view.innerHTML = `
+      <div class="idcard"><span class="idic" aria-hidden="true">🩺</span><small>Intro to Nursing Practice · 722.556</small><b>CLS Trainer</b><span>Vital signs · Medication administration · say it out loud</span></div>
       ${L.length ? `<div class="stats">
         <div class="stat"><b class="num">${todayN}</b><span>reps today</span></div>
         <div class="stat"><b class="num">${mets}</b><span>runs marked Met</span></div>

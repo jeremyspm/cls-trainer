@@ -1,11 +1,14 @@
 /* CLS Practical Trainer — house palette copied by value from the BN Hub contract (medcalc/index.html:14-46). Do not fork. */
 :root{
-  --bg:#161719; --bg2:#161719; --card:#1c1c1f; --card2:#242427;
+  /* the paper's colour (15 Oct 2026): INP's green, as on jeremyspm.github.io. The page takes a soft tint of it, the
+     header bar and the home banner wear it solid, and the accent comes from it (it was the house indigo) */
+  --paper:#16a34a;
+  --bg:color-mix(in srgb,var(--paper) 7%,#161719); --bg2:var(--bg); --card:#1c1c1f; --card2:#242427;
   --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.15);
   --tx:#f2f2f6; --tx2:rgba(255,255,255,.56); --tx3:rgba(255,255,255,.34);
-  --acc:#6366F1; --acc2:#565AE6;      /* fill only */
-  --acc-tx:#818CF8;                    /* the accent as TEXT */
-  --acc-soft:rgba(99,102,241,.16);
+  --acc:color-mix(in srgb,var(--paper) 88%,#000); --acc2:color-mix(in srgb,var(--paper) 78%,#000);   /* fill only */
+  --acc-tx:color-mix(in srgb,var(--paper) 70%,#fff);                                                  /* the accent as TEXT */
+  --acc-soft:color-mix(in srgb,var(--paper) 16%,transparent);
   --good:#32D74B; --hard:#FF9F0A; --bad:#FF453A;
   --gGood:color-mix(in srgb,var(--good) 16%,transparent);
   --gHard:color-mix(in srgb,var(--hard) 16%,transparent);
@@ -18,11 +21,12 @@
   --z-w:transparent; --z-y:rgba(255,214,10,.22); --z-o:rgba(255,159,10,.26); --z-p:rgba(255,105,140,.26); --z-b:rgba(100,160,255,.26);
 }
 html[data-theme="light"]{
-  --bg:#eceef3; --bg2:#eceef3; --card:#ffffff; --card2:#f4f5f7;
+  --bg:color-mix(in srgb,var(--paper) 7%,#eceef3); --bg2:var(--bg); --card:#ffffff; --card2:#f4f5f7;
   --line:rgba(0,0,0,.10); --line2:rgba(0,0,0,.14);
   --tx:#16161a; --tx2:rgba(0,0,0,.52); --tx3:rgba(0,0,0,.34);
-  --acc:#4F46E5; --acc2:#4138CF; --acc-tx:#4F46E5;
-  --acc-soft:rgba(79,70,229,.12);
+  --acc:color-mix(in srgb,var(--paper) 88%,#000); --acc2:color-mix(in srgb,var(--paper) 76%,#000);
+  --acc-tx:color-mix(in srgb,var(--paper) 80%,#000);
+  --acc-soft:color-mix(in srgb,var(--paper) 12%,transparent);
   --good:#12833A; --hard:#A35C00; --bad:#C62A20;
   --gGood:color-mix(in srgb,var(--good) 12%,transparent);
   --gHard:color-mix(in srgb,var(--hard) 12%,transparent);
@@ -32,7 +36,7 @@ html[data-theme="light"]{
   --z-w:#ffffff; --z-y:#fff3b0; --z-o:#fbd9b4; --z-p:#f6cfd9; --z-b:#d3e1f5;
 }
 @media (prefers-color-scheme:light){
-  :root:not([data-theme]){--bg:#eceef3;--card:#fff;--tx:#16161a}
+  :root:not([data-theme]){--bg:color-mix(in srgb,var(--paper) 7%,#eceef3);--card:#fff;--tx:#16161a}
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -57,13 +61,33 @@ p{margin:6px 0}
 .small{font-size:13.5px}
 
 /* header */
-.top{display:flex;align-items:center;gap:8px;padding:6px 0 12px;position:sticky;top:0;z-index:5;background:var(--bg)}
+/* the header bar wears the paper's colour solid (15 Oct 2026); it runs to the column's edges, rounded underneath */
+.top{display:flex;align-items:center;gap:8px;padding:10px 16px;margin:-10px -16px 14px;position:sticky;top:0;z-index:5;color:#fff;
+  border-radius:0 0 16px 16px;background:linear-gradient(100deg,color-mix(in srgb,var(--paper) 72%,#000),color-mix(in srgb,var(--paper) 88%,#000));
+  box-shadow:0 4px 18px -8px color-mix(in srgb,var(--paper) 60%,transparent)}
 .ttl{flex:1;min-width:0}
 .top h1{font-size:18px;margin:0;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .sub{font-size:12.5px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:12.5px;color:rgb(255 255 255 / .85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .iconbtn{width:40px;height:40px;flex:0 0 40px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:17px;display:grid;place-items:center}
 .iconbtn:active{transform:scale(.96)}
-.iconbtn.hub{width:auto;flex:none;padding:0 12px;font-size:13px;font-weight:700;color:var(--tx);text-decoration:none}
+.top .iconbtn{color:#fff;background:rgb(255 255 255 / .1);border-color:rgb(255 255 255 / .3)}
+.top .iconbtn:hover{background:rgb(255 255 255 / .2)}
+.iconbtn.hub{width:auto;flex:none;padding:0 12px;font-size:13px;font-weight:700;text-decoration:none}
+/* the home banner: the tool's name in giant type on the paper's colour, its emoji as a watermark */
+.idcard{position:relative;overflow:hidden;margin:0 0 14px;padding:20px 22px;border-radius:18px;color:#fff;
+  background:radial-gradient(90% 130% at 100% 0%,rgb(255 255 255 / .2),transparent 60%),
+    linear-gradient(135deg,color-mix(in srgb,var(--paper) 94%,#fff),color-mix(in srgb,var(--paper) 72%,#000));
+  box-shadow:0 14px 34px -16px color-mix(in srgb,var(--paper) 80%,transparent)}
+.idcard .idic{position:absolute;right:-8px;bottom:-30px;font-size:7.5rem;line-height:1;opacity:.22;transform:rotate(-14deg);pointer-events:none}
+.idcard small{position:relative;display:block;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgb(255 255 255 / .86)}
+.idcard b{position:relative;display:block;font-size:clamp(2.3rem,7vw,3.4rem);line-height:.95;margin:6px 0 8px;font-weight:900;letter-spacing:-.03em;text-transform:uppercase}
+.idcard span{position:relative;display:block;font-size:.88rem;color:rgb(255 255 255 / .9);line-height:1.35}
+@media (max-width:560px){
+  .idcard{padding:14px 16px;margin-bottom:10px;border-radius:14px}
+  .idcard .idic{font-size:5.5rem;bottom:-20px}
+  .idcard b{font-size:2.1rem;margin:4px 0 6px}
+  .idcard span{font-size:.8rem}
+}
 
 /* cards & rows */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin:10px 0}
