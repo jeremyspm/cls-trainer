@@ -84,6 +84,7 @@
   function setHeader(title, sub, back) {
     $('#title').textContent = title; $('#subtitle').textContent = sub || '';
     $('#backBtn').hidden = !back;
+    $('#hubBtn').hidden = !!back;   /* the start screen's way back to the BN2 Study Tools page */
     document.title = title === 'CLS Practical Trainer' ? title : title + ' · CLS Trainer';
   }
   function openSheet(html) {
