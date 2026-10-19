@@ -900,6 +900,30 @@
    "why": "p-dose"
   },
   {
+   "key": "12m7fya4d06",
+   "who": "rn",
+   "text": "He struggles with tablets. What can you do?",
+   "why": "p-crush"
+  },
+  {
+   "key": "j74qn6s2ym",
+   "who": "rn",
+   "text": "What do you tell him about stopping it, or a missed dose?",
+   "why": "p-stop"
+  },
+  {
+   "key": "1p8bodhql0g",
+   "who": "rn",
+   "text": "What safety advice goes with paracetamol?",
+   "why": "p-safe"
+  },
+  {
+   "key": "etw8jfw6mc",
+   "who": "rn",
+   "text": "Which rare reaction must you always name for paracetamol, and what would you do?",
+   "why": "p-anaph"
+  },
+  {
    "key": "xkmsezt4oo",
    "who": "rn",
    "text": "The pack says Betaloc C R. What’s the generic name, and what class is it?",
@@ -940,6 +964,24 @@
    "who": "rn",
    "text": "What safety advice goes with it?",
    "why": "o-falls"
+  },
+  {
+   "key": "3u2hgoiuj9",
+   "who": "rn",
+   "text": "How often is it given, and what do you check on the record?",
+   "why": "o-max"
+  },
+  {
+   "key": "1vie18eovfk",
+   "who": "rn",
+   "text": "You have 47 point 5 milligrams C R tablets and the order is 47 point 5 milligrams. How many?",
+   "why": "o-dose"
+  },
+  {
+   "key": "8senyqkbza",
+   "who": "rn",
+   "text": "Which rare reaction must you always name for metoprolol, and what would you do?",
+   "why": "o-anaph"
   }
  ]
 }
