@@ -324,9 +324,9 @@
    "why": "ma-know-rn"
   },
   {
-   "key": "1kezdzsc3sb",
+   "key": "1uce0vsa9zf",
    "who": "you",
-   "text": "Paracetamol is a simple analgesic. He’s on it for his recurrent backache. Common adverse effects are actually none at the right dose. The data sheet lists every one as very rare: allergic reactions and rash, bronchospasm in people sensitive to aspirin, low platelets, and liver problems. The main danger is liver damage from too much. I’ll check it’s been at least 4 hours since his last dose and that he hasn’t had other paracetamol, because the max is 4 grams a day.",
+   "text": "Paracetamol is a simple analgesic. He’s on it for his recurrent backache. Common adverse effects are actually none at the right dose. The data sheet lists every one as very rare: allergic reactions and rash, including anaphylaxis, bronchospasm in people sensitive to aspirin, low platelets, and liver problems. The main danger is liver damage from too much. I’ll check it’s been at least 4 hours since his last dose and that he hasn’t had other paracetamol, because the max is 4 grams a day.",
    "why": "ma-know"
   },
   {
@@ -498,9 +498,9 @@
    "why": "ma-time"
   },
   {
-   "key": "woat4ybfes",
+   "key": "1f1uahamzpw",
    "who": "you",
-   "text": "Metoprolol suxinate is a beta-adreno-ceptor blocker. He’s on it for his high blood pressure and his heart failure. Common adverse effects are fatigue, which is very common, and the common ones: bradycardia, dizziness or light-headedness on standing, cold hands and feet, palpitations, dizziness, headache, nausea, abdominal pain, diarrhoea, constipation, and dyspnoea on exertion. I’ll check his pulse and blood pressure first, and he’s a falls risk because of the dizziness.",
+   "text": "Metoprolol suxinate is a beta-adreno-ceptor blocker. He’s on it for his high blood pressure and his heart failure. Common adverse effects are fatigue, which is very common, and the common ones: bradycardia, dizziness or light-headedness on standing, cold hands and feet, palpitations, dizziness, headache, nausea, abdominal pain, diarrhoea, constipation, and dyspnoea on exertion. And rarely anaphylaxis, which beta blockers make harder to treat with adrenaline. I’ll check his pulse and blood pressure first, and he’s a falls risk because of the dizziness.",
    "why": "ma-know"
   },
   {
@@ -522,15 +522,15 @@
    "why": "ma-ask"
   },
   {
-   "key": "g2acix017e",
+   "key": "1ydqp37jo76",
    "who": "you",
-   "text": "This is metoprolol suxinate. It’s to bring your blood pressure down and take some of the strain off your heart. The common side effects are feeling tired; a slow heartbeat, or feeling your heart pounding; feeling dizzy or light-headed, especially when you stand up; cold hands and feet; headaches; feeling sick, tummy pain, diarrhoea or constipation; and getting short of breath when you’re active. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.",
+   "text": "This is metoprolol suxinate. It’s to bring your blood pressure down and take some of the strain off your heart. The common side effects are feeling tired; a slow heartbeat, or feeling your heart pounding; feeling dizzy or light-headed, especially when you stand up; cold hands and feet; headaches; feeling sick, tummy pain, diarrhoea or constipation; and getting short of breath when you’re active. Very rarely, people have an allergic reaction: if you get a rash, swelling, or trouble breathing, ring your bell straight away. Because of the dizziness, please ring your bell before you get up for the next little while, so we can help you and you don’t fall.",
    "why": "ma-build"
   },
   {
-   "key": "2c6l1b9zrei",
+   "key": "17774lupan",
    "who": "you",
-   "text": "I want to check I’ve been clear. Can you tell me, in your own words, what this tablet is for, and what you’d do if you felt dizzy?",
+   "text": "I want to check I’ve been clear. Can you tell me, in your own words, what this tablet is for, and what you’d do if you felt dizzy or got a rash or trouble breathing?",
    "why": "ma-check"
   },
   {
@@ -900,6 +900,30 @@
    "why": "p-dose"
   },
   {
+   "key": "12m7fya4d06",
+   "who": "rn",
+   "text": "He struggles with tablets. What can you do?",
+   "why": "p-crush"
+  },
+  {
+   "key": "j74qn6s2ym",
+   "who": "rn",
+   "text": "What do you tell him about stopping it, or a missed dose?",
+   "why": "p-stop"
+  },
+  {
+   "key": "1p8bodhql0g",
+   "who": "rn",
+   "text": "What safety advice goes with paracetamol?",
+   "why": "p-safe"
+  },
+  {
+   "key": "etw8jfw6mc",
+   "who": "rn",
+   "text": "Which rare reaction must you always name for paracetamol, and what would you do?",
+   "why": "p-anaph"
+  },
+  {
    "key": "xkmsezt4oo",
    "who": "rn",
    "text": "The pack says Betaloc C R. What’s the generic name, and what class is it?",
@@ -912,9 +936,9 @@
    "why": "o-ind"
   },
   {
-   "key": "wtfbx1erx8",
+   "key": "hgbm5tjin6",
    "who": "rn",
-   "text": "What are ALL the common adverse effects of metoprolol?",
+   "text": "What are ALL the common adverse effects of metoprolol, and the rare one you must always name?",
    "why": "o-ae"
   },
   {
@@ -940,6 +964,24 @@
    "who": "rn",
    "text": "What safety advice goes with it?",
    "why": "o-falls"
+  },
+  {
+   "key": "3u2hgoiuj9",
+   "who": "rn",
+   "text": "How often is it given, and what do you check on the record?",
+   "why": "o-max"
+  },
+  {
+   "key": "1vie18eovfk",
+   "who": "rn",
+   "text": "You have 47 point 5 milligrams C R tablets and the order is 47 point 5 milligrams. How many?",
+   "why": "o-dose"
+  },
+  {
+   "key": "8senyqkbza",
+   "who": "rn",
+   "text": "Which rare reaction must you always name for metoprolol, and what would you do?",
+   "why": "o-anaph"
   }
  ]
 }
