@@ -198,8 +198,11 @@ for (let i = 0; i < 2000; i++) {
 
 // drugs
 for (const k of ['para', 'meto']) { const d = D.DRUGS[k]; ok(d.generic && d.indication && d.adverse && d.src.every(s => D.SRC[s[0]]), `drug ${k} incomplete`); }
-// Joan wants ALL the common adverse effects: metoprolol's data sheet has 12 (1 very common + 11 common), and the run must listen for each
-ok(D.FILL.meto.aeKeys.length === 12 && D.FILL.meto.aeKeysPlain.length === 12, `metoprolol: listening for ${D.FILL.meto.aeKeys.length} / ${D.FILL.meto.aeKeysPlain.length} adverse effects, the data sheet has 12 common ones`);
+// Joan wants ALL the common adverse effects: metoprolol's data sheet has 12 (1 very common + 11 common), and the run must listen for each,
+// plus anaphylaxis: rare, but assessors mark it critical for every drug (missing it on metoprolol failed an attempt, 19 Oct 2026)
+const anaph = keys => keys.some(g => g.some(w => /anaphyla|allerg|rash/.test(w)));
+ok(D.FILL.meto.aeKeys.length === 13 && D.FILL.meto.aeKeysPlain.length === 13, `metoprolol: listening for ${D.FILL.meto.aeKeys.length} / ${D.FILL.meto.aeKeysPlain.length} adverse effects, want the 12 common ones + anaphylaxis`);
+for (const k of ['para', 'meto']) ok(anaph(D.FILL[k].aeKeys) && anaph(D.FILL[k].aeKeysPlain), `${k}: the run must listen for anaphylaxis / allergic reaction`);
 for (const n of D.NORMALS) ok(D.SRC[n.src[0]], `normal ${n.k}: unknown source`);
 
 // 3. wiring: files referenced exist
