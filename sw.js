@@ -1,5 +1,5 @@
 /* Offline: cache the app shell; network-first for HTML so updates land, cache-first for the rest. Bump VERSION on every deploy. */
-const VERSION = 'cls-v9';
+const VERSION = 'cls-v10';
 const SHELL = ['./', 'index.html', 'css/app.css', 'js/data.js', 'js/rnq-data.js', 'js/voice.js', 'js/bp.js', 'js/chart-vs.js', 'js/chart.js', 'js/app.js', 'paper.html', 'js/paper.js', 'icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
